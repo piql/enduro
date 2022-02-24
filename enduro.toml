@@ -8,7 +8,7 @@ domain = "enduro"
 address = "127.0.0.1:7400"
 
 [api]
-listen = "127.0.0.1:9000"
+listen = "0.0.0.0:9000"
 debug = false
 
 [database]
