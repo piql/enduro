@@ -386,7 +386,7 @@ func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) (Pa
 	validation_results := PackageValidationResults{}
 
 	for pkg := range sip_packages {
-		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+sip_packages[pkg])
+		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+sip_packages[pkg])
 		stdout, err := cmd.Output()
 
 		if err != nil {
@@ -438,7 +438,7 @@ func PrepareAMTransferActivity(ctx context.Context, valid_packages []string) err
 	}
 	for _, pkg := range valid_packages {
 		InfoLogger.Println("Package:", pkg)
-		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "sips/"+pkg, "am_transfers")
+		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg, "-o", "am_transfers")
 		op, err := cmd.Output()
 		InfoLogger.Println(string(op))
 		if err != nil {
