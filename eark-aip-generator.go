@@ -1,0 +1,810 @@
+package main
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"go.uber.org/cadence/activity"
+	"go.uber.org/cadence/worker"
+	"go.uber.org/cadence/workflow"
+)
+
+const (
+	EarkAipGeneratorWorkflowName = "eark-aip-generator"
+	//ValidateWorkflowName                = "validate"
+	ListSipPackagesActivityName         = "sip:list-packages"
+	ValidateSipPackagesActivityName     = "sip:validate-packages"
+	SipValidationReportActivityName     = "sip:validation-report"
+	PrepareAMTransferActivityName       = "am-aip:prepare-transfer"
+	ExecuteAMTransferActivityName       = "am-aip:execute-transfer"
+	WaitForBatchActivityName            = "am-aip:wait-for-batch"
+	CollectProcessingDataActivityName   = "am-aip:collect-processing-data"
+	GenerateEarkAipActivityName         = "eark-aip:gernerate-eark-aip"
+	WaitForAMProcessActivityName        = "am-aip:wait-for-am-process"
+	DownloadAndPlaceAMAIPActivityName   = "am-aip:download-and-place-am-aip"
+	UpdatePreservationMetsActivityName  = "eark-aip:update-preservation-mets"
+	ValidateEarkAipPackagesActivityName = "eark-aip:validare-eark-aip"
+	EarkAipValidationReportActivityName = "eark-aip:validation-report"
+	ValidateTaskListName                = "global"
+)
+
+// Logger
+var (
+	WarningLogger *log.Logger
+	InfoLogger    *log.Logger
+	ErrorLogger   *log.Logger
+)
+
+func registerEarkAipGeneratorWorkflowActivities(w worker.Worker) {
+	//Register workflow
+	w.RegisterWorkflowWithOptions(
+		EarkAipGeneratorWorkflow,
+		workflow.RegisterOptions{Name: EarkAipGeneratorWorkflowName},
+	)
+	w.RegisterActivityWithOptions(
+		ListSipPackagesActivity,
+		activity.RegisterOptions{Name: ListSipPackagesActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		ValidateSipPackagesActivity,
+		activity.RegisterOptions{Name: ValidateSipPackagesActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		SipValidationReportActivity,
+		activity.RegisterOptions{Name: SipValidationReportActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		PrepareAMTransferActivity,
+		activity.RegisterOptions{Name: PrepareAMTransferActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		ExecuteAMTransferActivity,
+		activity.RegisterOptions{Name: ExecuteAMTransferActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		WaitForBatchActivity,
+		activity.RegisterOptions{Name: WaitForBatchActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		CollectProcessingDataActivity,
+		activity.RegisterOptions{Name: CollectProcessingDataActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		GenerateEarkAipActivity,
+		activity.RegisterOptions{Name: GenerateEarkAipActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		WaitForAMProcessActivity,
+		activity.RegisterOptions{Name: WaitForAMProcessActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		DownloadAndPlaceAMAIPActivity,
+		activity.RegisterOptions{Name: DownloadAndPlaceAMAIPActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		UpdatePreservationMetsActivity,
+		activity.RegisterOptions{Name: UpdatePreservationMetsActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		ValidateEarkAipPackagesActivity,
+		activity.RegisterOptions{Name: ValidateEarkAipPackagesActivityName},
+	)
+	w.RegisterActivityWithOptions(
+		EarkAipValidationReportActivity,
+		activity.RegisterOptions{Name: EarkAipValidationReportActivityName},
+	)
+}
+
+func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
+	var sip_list []string
+	var sip_validation_results PackageValidationResults
+	var valid_packages []string
+	var batch_submission_data BatchData
+	var collection_data CollectionData
+	var eark_validation_results PackageValidationResults
+
+	// Logger
+	// If the file doesn't exist, create it or append to the file
+
+	err := os.MkdirAll("logs", os.ModePerm)
+	if err != nil {
+		return err
+	}
+	file, err := os.OpenFile("logs/logs.txt", os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return err
+	}
+	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	ErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	// List SIP Packages
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, ListSipPackagesActivityName)
+
+		err := future.Get(ctx, &sip_list)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	//Validate SIP Packages
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, ValidateSipPackagesActivityName, sip_list)
+
+		err := future.Get(ctx, &sip_validation_results)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// SIP Validation Report
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, SipValidationReportActivityName, sip_validation_results)
+
+		err := future.Get(ctx, &valid_packages)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Prepare AM Transfer
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, PrepareAMTransferActivityName, valid_packages)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Execute AM Transfer
+
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, ExecuteAMTransferActivityName)
+
+		err := future.Get(ctx, &batch_submission_data)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	/*
+		At each new stage ensure that the batch workflow is still running
+			Mayb just at the end for ease of coding and speed
+		If it fails revert the changes and stop the workflow
+		If it succeeds stop checking
+
+		Pottentially set batch time at time of api call.
+		When checked, if still running update batch time to Now
+		If there are multiple sips, when does the second processing workflow start?
+	*/
+
+	// Wait for batch process to complete
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, WaitForBatchActivityName, batch_submission_data)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Collect processing data
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, CollectProcessingDataActivityName, batch_submission_data)
+
+		err := future.Get(ctx, &collection_data)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Generate EARK AIP
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, GenerateEarkAipActivityName, valid_packages)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Wait for AM process
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute * 15 * time.Duration(len(valid_packages)),
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, WaitForAMProcessActivityName, collection_data)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Download and place am aip
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, DownloadAndPlaceAMAIPActivityName, collection_data)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Update preservation mets
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, UpdatePreservationMetsActivityName, valid_packages)
+
+		err := future.Get(ctx, nil)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// Validate eark aip
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, ValidateEarkAipPackagesActivityName, valid_packages)
+
+		err := future.Get(ctx, &eark_validation_results)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	// EARK AIP Validation Report
+	{
+		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+			TaskList:               ValidateTaskListName,
+			ScheduleToStartTimeout: time.Second * 10,
+			StartToCloseTimeout:    time.Minute,
+		})
+
+		future := workflow.ExecuteActivity(activityOptions, EarkAipValidationReportActivityName, eark_validation_results)
+
+		err := future.Get(ctx, &valid_packages)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ListSipPackagesActivity(ctx context.Context) ([]string, error) {
+	var list []string
+
+	files, err := ioutil.ReadDir("./sips")
+	if err != nil {
+		ErrorLogger.Println(err)
+		return nil, err
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			list = append(list, f.Name())
+		}
+	}
+	return list, nil
+}
+
+func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) (PackageValidationResults, error) {
+	validation_results := PackageValidationResults{}
+
+	for pkg := range sip_packages {
+		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+sip_packages[pkg])
+		stdout, err := cmd.Output()
+
+		if err != nil {
+			ErrorLogger.Println(err)
+			return nil, err
+		}
+
+		path := strings.Replace(string(stdout), "\n", "", -1)
+
+		jsonFile, err := os.Open(path)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return nil, err
+		}
+		defer jsonFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+		var data ValidatorData
+		json.Unmarshal([]byte(byteValue), &data)
+		validation_results[sip_packages[pkg]] = data.Summary.Result == "VALID"
+	}
+	return validation_results, nil
+}
+
+func SipValidationReportActivity(ctx context.Context, validation_results PackageValidationResults) ([]string, error) {
+	var valid_packages []string
+
+	for identifier, passed := range validation_results {
+		if passed {
+			valid_packages = append(valid_packages, identifier)
+		}
+	}
+	if len(valid_packages) == 0 {
+		err := errors.New("No valid sip packages")
+		ErrorLogger.Println(err)
+		return nil, err
+	}
+	return valid_packages, nil
+}
+
+func PrepareAMTransferActivity(ctx context.Context, valid_packages []string) error {
+	// os.IsExist is blind to empty files
+	if _, err := os.Stat("am_transfers"); !os.IsNotExist(err) {
+		err := RemoveContents("am_transfers")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+	for _, pkg := range valid_packages {
+		InfoLogger.Println("Package:", pkg)
+		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "sips/"+pkg, "am_transfers")
+		op, err := cmd.Output()
+		InfoLogger.Println(string(op))
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
+
+	var batch_submission_output map[string]interface{}
+	//var batch_submission_data []string
+	var batch_submission_data BatchData
+
+	working_dir, err := os.Getwd()
+	if err != nil {
+		return batch_submission_data, err
+	}
+	InfoLogger.Println("Beginning API Call")
+	postBody, _ := json.Marshal(map[string]string{
+		"path":     working_dir + "/am_transfers/",
+		"pipeline": "am",
+	})
+	responseBody := bytes.NewBuffer(postBody)
+	resp, err := http.Post("http://localhost:9000/batch", "application/json", responseBody)
+	submission_time := time.Now().Format("2006-01-02T15:04:05Z")
+	if err != nil {
+		return batch_submission_data, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return batch_submission_data, err
+	}
+
+	err = json.Unmarshal(body, &batch_submission_output)
+	if err != nil {
+		return batch_submission_data, err
+	}
+
+	if fault, ok := batch_submission_output["fault"]; ok {
+		var fault_str string
+		if fault == true {
+			fault_str = "Bad Request Response"
+		} else {
+			fault_str = "Conflict Response"
+		}
+		err = errors.New("Error: batch submission failed: " + fault_str)
+		ErrorLogger.Println(err)
+		return batch_submission_data, err
+	} else {
+		if workflow_id, ok := batch_submission_output["workflow_id"]; ok {
+			if workflow_id == "batch-workflow" {
+				run_id := batch_submission_output["run_id"].(string)
+				batch_submission_data = BatchData{run_id, submission_time}
+				// InfoLogger.Printf("%+v", batch_submission_data)
+				return batch_submission_data, nil
+			} else {
+				err = errors.New("Error: batch submission failed")
+				ErrorLogger.Println(err)
+				return batch_submission_data, err
+			}
+		}
+	}
+	err = errors.New("Error: batch submission failed: Unknown")
+	ErrorLogger.Println(err)
+	return batch_submission_data, err
+}
+
+func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
+
+	var batch_status map[string]interface{}
+
+	for ok := true; ok; ok = true {
+		resp, err := http.Get("http://localhost:9000/batch")
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+		err = json.Unmarshal(body, &batch_status)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+
+		if running, ok := batch_status["running"]; ok {
+			if running == true {
+				time.Sleep(time.Second * 5)
+			} else if running == false {
+				if status, ok := batch_status["status"]; ok {
+					if status == "completed" {
+						InfoLogger.Println("Batch workflow complete.")
+						return nil
+					} else {
+						err = errors.New("Error: batch workflow not completed")
+						ErrorLogger.Println(err)
+						return err
+					}
+				}
+			} else {
+				err = errors.New("Error reading batch status")
+				ErrorLogger.Println(err)
+				return err
+			}
+		} else {
+			err = errors.New("Error reading batch status")
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData) (CollectionData, error) {
+
+	var collection_output CollectionData
+	submission_time := batch_data.Time
+
+	// InfoLogger.Println("http://localhost:9000/collection?earliest_created_time=" + submission_time)
+
+	resp, err := http.Get("http://localhost:9000/collection?earliest_created_time=" + submission_time)
+	if err != nil {
+		ErrorLogger.Println(err)
+		return collection_output, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ErrorLogger.Println(err)
+		return collection_output, err
+	}
+	err = json.Unmarshal(body, &collection_output)
+	if err != nil {
+		ErrorLogger.Println(err)
+		return collection_output, err
+	}
+	/*
+		for _, item := range collection_output.Items {
+			InfoLogger.Printf("%+v", item)
+		}
+	*/
+
+	return collection_output, nil
+}
+
+func GenerateEarkAipActivity(ctx context.Context, valid_packages []string) error {
+	for _, pkg := range valid_packages {
+		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg, "eark_aips")
+		op, err := cmd.Output()
+		InfoLogger.Println(string(op))
+		if err != nil {
+			ErrorLogger.Println(err.Error())
+			return err
+		}
+	}
+	return nil
+}
+
+func WaitForAMProcessActivity(ctx context.Context, collection_data CollectionData) error {
+
+	for _, item := range collection_data.Items {
+		completed_process := false
+		for ok := true; ok; ok = !completed_process {
+
+			var collection_item EnduroItem
+
+			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", item.Id))
+
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+			err = json.Unmarshal(body, &collection_item)
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+			// InfoLogger.Printf("Collection Item: %+v", collection_item)
+
+			if collection_item.Status == "error" {
+				err = errors.New("Error: AM Process Failed: " + collection_item.Workflow_id)
+				ErrorLogger.Println(err)
+				return err
+			}
+			completed_process = collection_item.Status == "done"
+			if !completed_process {
+				time.Sleep(time.Minute)
+			} else {
+				InfoLogger.Println(item.Name + "is completed.")
+			}
+		}
+	}
+	return nil
+}
+
+func DownloadAndPlaceAMAIPActivity(ctx context.Context, collection_data CollectionData) error {
+
+	for _, item := range collection_data.Items {
+
+		// InfoLogger.Println(fmt.Sprint("http://localhost:9000/collection/", item.Id, "/download"))
+
+		resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", item.Id, "/download"))
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			return errors.New("Error: Unsuccesful download request")
+		}
+
+		preservation_file := "eark_aips/" + item.Name + "/representations/rep01.1/data/" + item.Name + ".zip"
+
+		// Create the file
+		// out, err := os.Create("am_aips/" + item.Name + string(time.Now().Format("01-02-2006")+time.Now().Format("15:04:05")) + ".zip")
+		out, err := os.Create(preservation_file)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+		defer out.Close()
+
+		// Write the body to file
+		_, err = io.Copy(out, resp.Body)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+
+		InfoLogger.Println(preservation_file + "downloaded and placed.")
+	}
+	return nil
+}
+
+func UpdatePreservationMetsActivity(ctx context.Context, valid_packages []string) error {
+	for _, pkg := range valid_packages {
+		location := "eark_aips/" + pkg + "/representations/rep01.1"
+		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
+		op, err := cmd.Output()
+		InfoLogger.Println(string(op))
+		if err != nil {
+			ErrorLogger.Println(err.Error())
+			return err
+		}
+	}
+	return nil
+}
+
+func ValidateEarkAipPackagesActivity(ctx context.Context, eark_packages []string) (PackageValidationResults, error) {
+	validation_results := PackageValidationResults{}
+
+	for pkg := range eark_packages {
+		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+eark_packages[pkg])
+		stdout, err := cmd.Output()
+
+		if err != nil {
+			ErrorLogger.Println(err)
+			return nil, err
+		}
+
+		path := strings.Replace(string(stdout), "\n", "", -1)
+
+		jsonFile, err := os.Open(path)
+		if err != nil {
+			ErrorLogger.Println(err)
+			return nil, err
+		}
+		defer jsonFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+		var data ValidatorData
+		json.Unmarshal([]byte(byteValue), &data)
+		validation_results[eark_packages[pkg]] = data.Summary.Result == "VALID"
+	}
+	return validation_results, nil
+}
+
+func EarkAipValidationReportActivity(ctx context.Context, validation_results PackageValidationResults) ([]string, error) {
+	var valid_packages []string
+
+	for identifier, passed := range validation_results {
+		if passed {
+			valid_packages = append(valid_packages, identifier)
+		}
+	}
+	if len(valid_packages) == 0 {
+		err := errors.New("No valid eark packages")
+		ErrorLogger.Println(err)
+		return nil, err
+	}
+	return valid_packages, nil
+}
+
+func RemoveContents(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type BatchData struct {
+	Run_id string `json:"run_id"`
+	Time   string `json:"time"`
+}
+
+type CollectionData struct {
+	Items       []EnduroItem `json:"items"`
+	Next_cursor string       `json:"next_cursor"`
+}
+
+type EnduroItem struct {
+	Aip_id       string `json:"aip_id"`
+	Completed_at string `json:"completed_at"` // time
+	Created_at   string `json:"created_at"`   // time
+	Id           int    `json:"id"`
+	Name         string `json:"name"`
+	Original_id  string `json:"original_id"`
+	Pipeline_id  string `json:"pipeline_id"`
+	Run_id       string `json:"run_id"`
+	Started_at   string `json:"started_at"` // time
+	Status       string `json:"status"`
+	Transfer_id  string `json:"transfer_id"`
+	Workflow_id  string `json:"workflow_id"`
+}
+
+type PackageValidationResults map[string]bool
+
+type ValidatorData struct {
+	Header     map[string]interface{} `json:"header"`
+	Validation map[string]interface{} `json:"validation"`
+	Summary    ValidatorSummary       `json:"summary"`
+}
+
+type ValidatorSummary struct {
+	Success  int    `json:"success"`
+	Warnings int    `json:"warnings"`
+	Errors   int    `json:"errors"`
+	Skipped  int    `json:"skipped"`
+	Notes    int    `json:"notes"`
+	Result   string `json:"result"`
+}

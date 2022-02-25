@@ -1,3 +1,9 @@
 [submodule "website/themes/docsy"]
 	path = website/themes/docsy
 	url = https://github.com/google/docsy.git
+[submodule "scripts/sip_to_eark_aip"]
+	path = scripts/sip_to_eark_aip
+	url = https://github.com/camlyall/sip_to_eark_aip.git
+[submodule "scripts/sip_to_am_transfer"]
+	path = scripts/sip_to_am_transfer
+	url = https://github.com/camlyall/sip_to_am_transfer.git
