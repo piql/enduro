@@ -1,3 +1,9 @@
+sips/*
+/logs
+/am_transfers
+/eark_aips
+!*.gitkeep
+
 /build
 /dist
 /enduro
