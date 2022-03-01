@@ -22,8 +22,7 @@ import (
 )
 
 const (
-	EarkAipGeneratorWorkflowName = "eark-aip-generator"
-	//ValidateWorkflowName                = "validate"
+	EarkAipGeneratorWorkflowName        = "eark-aip-generator"
 	ListSipPackagesActivityName         = "sip:list-packages"
 	ValidateSipPackagesActivityName     = "sip:validate-packages"
 	SipValidationReportActivityName     = "sip:validation-report"
@@ -215,17 +214,6 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			return err
 		}
 	}
-
-	/*
-		At each new stage ensure that the batch workflow is still running
-			Mayb just at the end for ease of coding and speed
-		If it fails revert the changes and stop the workflow
-		If it succeeds stop checking
-
-		Pottentially set batch time at time of api call.
-		When checked, if still running update batch time to Now
-		If there are multiple sips, when does the second processing workflow start?
-	*/
 
 	// Wait for batch process to complete
 	{
