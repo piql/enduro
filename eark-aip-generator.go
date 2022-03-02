@@ -193,7 +193,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, PrepareAMTransferActivityName, package_details)
 
-		err := future.Get(ctx, nil)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -243,9 +243,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, CollectProcessingDataActivityName, batch_submission_data)
+		future := workflow.ExecuteActivity(activityOptions, CollectProcessingDataActivityName, batch_submission_data, package_details)
 
-		err := future.Get(ctx, &collection_data)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -617,13 +617,13 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	// The output will be in reverse order - with the last process first
 	// So we will iterate collection output in reverse.
 	// This is to attempt to efficitently assign am trasnfer ids without exponentially timed nested loops
-	var col_i = len(collection_output.Items)
+	var col_i = len(collection_output.Items)-1
 	for pkg_i, pkg := range package_details {
 		if strings.HasPrefix(collection_output.Items[col_i].Name, pkg.Sip_name) {
 			for am_t_i, am_trans := range pkg.Am_transfers {
 				if am_trans.Name == collection_output.Items[col_i].Name {
 					package_details[pkg_i].Am_transfers[am_t_i].Id = collection_output.Items[col_i].Id
-					col_i -= 1
+					col_i = col_i - 1
 				} else {
 					err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + am_trans.Name + ": " + collection_output.Items[col_i].Name)
 					ErrorLogger.Println(err)
@@ -635,9 +635,6 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 			ErrorLogger.Println(err)
 			return nil, err
 		}
-	}
-	for _, item := range collection_output.Items {
-		InfoLogger.Printf("%+v", item)
 	}
 	return package_details, nil
 }
