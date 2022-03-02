@@ -124,6 +124,13 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	if err != nil {
 		return err
 	}
+	if _, err := os.Stat("logs/logs.txt"); err == nil {
+		e := os.Remove("logs/logs.txt")
+		if e != nil {
+			ErrorLogger.Println(err)
+			return err
+		}
+	}
 	file, err := os.OpenFile("logs/logs.txt", os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
