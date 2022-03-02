@@ -635,7 +635,7 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	return package_details, nil
 }
 
-func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) error {
+func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
 	for i, pkg := range package_details {
 		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg.Sip_name, "eark_aips")
 		op, err := cmd.Output()
@@ -645,10 +645,10 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 		package_details[i].Aip_name = aip_name
 		if err != nil {
 			ErrorLogger.Println(err.Error())
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return package_details, nil
 }
 
 func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDetails) error {
