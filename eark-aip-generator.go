@@ -460,8 +460,6 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 }
 
 func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, file_index int) ([]PackageDetails, error) {
-	InfoLogger.Println(sips[sip_index].Sip_name)
-	InfoLogger.Println(files[file_index].Name())
 	if strings.HasPrefix(files[file_index].Name(), sips[sip_index].Sip_name) {
 		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, AmTransferDetails{Name: files[file_index].Name()})
 		// sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, files[file_index].Name())
@@ -641,7 +639,7 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 	for _, pkg := range package_details {
 		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg.Sip_name, "eark_aips")
 		op, err := cmd.Output()
-		InfoLogger.Println(string(op))
+		InfoLogger.Println("SipToEarkAip Output:\n", string(op))
 		if err != nil {
 			ErrorLogger.Println(err.Error())
 			return err
