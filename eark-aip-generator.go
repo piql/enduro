@@ -619,7 +619,6 @@ func WaitForAMProcessActivity(ctx context.Context, collection_data CollectionDat
 				ErrorLogger.Println(err)
 				return err
 			}
-			// InfoLogger.Printf("Collection Item: %+v", collection_item)
 
 			if collection_item.Status == "error" {
 				err = errors.New("Error: AM Process Failed: " + collection_item.Workflow_id)
@@ -630,6 +629,7 @@ func WaitForAMProcessActivity(ctx context.Context, collection_data CollectionDat
 			if !completed_process {
 				time.Sleep(time.Minute)
 			} else {
+				InfoLogger.Printf("Collection Item: %+v", collection_item)
 				InfoLogger.Println(item.Name + "is completed.")
 			}
 		}
