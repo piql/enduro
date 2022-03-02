@@ -378,7 +378,7 @@ func ListSipPackagesActivity(ctx context.Context) ([]PackageDetails, error) {
 func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
 	// validation_results := PackageValidationResults{}
 
-	for _, pkg := range package_details {
+	for i, pkg := range package_details {
 		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 
@@ -400,9 +400,8 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageD
 		byteValue, _ := ioutil.ReadAll(jsonFile)
 		var data CommonsValidatorData
 		json.Unmarshal([]byte(byteValue), &data)
-		pkg.Sip_valid = data.Summary.Result == "VALID"
-		// package_details = append(package_details, PackageDetails{Sip_name: pkg, Sip_valid: data.Summary.Result == "VALID"})
-		// validation_results[sip_packages[pkg]] = data.Summary.Result == "VALID"
+		// pkg is a copy of package details so must set variables using index
+		package_details[i].Sip_valid = data.Summary.Result == "VALID"
 	}
 	return package_details, nil
 }
