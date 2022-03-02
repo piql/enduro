@@ -636,10 +636,13 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 }
 
 func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) error {
-	for _, pkg := range package_details {
+	for i, pkg := range package_details {
 		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg.Sip_name, "eark_aips")
 		op, err := cmd.Output()
-		InfoLogger.Println("SipToEarkAip Output:\n", string(op))
+		split_output := strings.Split(string(op), "\n")
+		aip_name := split_output[len(split_output)-1]
+		InfoLogger.Println("SipToEarkAip Output:\n", aip_name)
+		package_details[i].Aip_name = aip_name
 		if err != nil {
 			ErrorLogger.Println(err.Error())
 			return err
