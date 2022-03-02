@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -107,8 +108,10 @@ func registerEarkAipGeneratorWorkflowActivities(w worker.Worker) {
 }
 
 func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
-	var sip_list []string
-	var sip_validation_results PackageValidationResults
+	var sips_list []string
+	// var sip_validation_results PackageValidationResults
+	var package_details []PackageDetails
+
 	var valid_packages []string
 	var batch_submission_data BatchData
 	var collection_data CollectionData
@@ -139,7 +142,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, ListSipPackagesActivityName)
 
-		err := future.Get(ctx, &sip_list)
+		err := future.Get(ctx, &sips_list)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -154,9 +157,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, ValidateSipPackagesActivityName, sip_list)
+		future := workflow.ExecuteActivity(activityOptions, ValidateSipPackagesActivityName, sips_list)
 
-		err := future.Get(ctx, &sip_validation_results)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -171,7 +174,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, SipValidationReportActivityName, sip_validation_results)
+		future := workflow.ExecuteActivity(activityOptions, SipValidationReportActivityName, package_details)
 
 		err := future.Get(ctx, &valid_packages)
 		if err != nil {
@@ -355,7 +358,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 }
 
 func ListSipPackagesActivity(ctx context.Context) ([]string, error) {
-	var list []string
+	var sip_packages []string
 
 	files, err := ioutil.ReadDir("./sips")
 	if err != nil {
@@ -364,17 +367,18 @@ func ListSipPackagesActivity(ctx context.Context) ([]string, error) {
 	}
 	for _, f := range files {
 		if f.IsDir() {
-			list = append(list, f.Name())
+			sip_packages = append(sip_packages, f.Name())
 		}
 	}
-	return list, nil
+	return sip_packages, nil
 }
 
-func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) (PackageValidationResults, error) {
-	validation_results := PackageValidationResults{}
+func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) ([]PackageDetails, error) {
+	// validation_results := PackageValidationResults{}
+	var package_details []PackageDetails
 
-	for pkg := range sip_packages {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+sip_packages[pkg])
+	for _, pkg := range sip_packages {
+		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg)
 		stdout, err := cmd.Output()
 
 		if err != nil {
@@ -392,30 +396,34 @@ func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) (Pa
 		defer jsonFile.Close()
 
 		byteValue, _ := ioutil.ReadAll(jsonFile)
-		var data ValidatorData
+		var data CommonsValidatorData
 		json.Unmarshal([]byte(byteValue), &data)
-		validation_results[sip_packages[pkg]] = data.Summary.Result == "VALID"
+		package_details = append(package_details, PackageDetails{Sip_name: pkg, Sip_valid: data.Summary.Result == "VALID"})
+		// validation_results[sip_packages[pkg]] = data.Summary.Result == "VALID"
 	}
-	return validation_results, nil
+	return package_details, nil
 }
 
-func SipValidationReportActivity(ctx context.Context, validation_results PackageValidationResults) ([]string, error) {
-	var valid_packages []string
+func SipValidationReportActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
 
-	for identifier, passed := range validation_results {
-		if passed {
-			valid_packages = append(valid_packages, identifier)
+	// Remove invalid sip packages
+	for i, pkg := range package_details {
+		if !pkg.Sip_valid {
+			package_details = append(package_details[:i], package_details[i+1:]...)
 		}
 	}
-	if len(valid_packages) == 0 {
+
+	if len(package_details) == 0 {
 		err := errors.New("No valid sip packages")
 		ErrorLogger.Println(err)
 		return nil, err
 	}
-	return valid_packages, nil
+	return package_details, nil
 }
 
-func PrepareAMTransferActivity(ctx context.Context, valid_packages []string) error {
+func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+
+	// Delete previous content from 'am_transfers' directory
 	// os.IsExist is blind to empty files
 	if _, err := os.Stat("am_transfers"); !os.IsNotExist(err) {
 		err := RemoveContents("am_transfers")
@@ -424,17 +432,48 @@ func PrepareAMTransferActivity(ctx context.Context, valid_packages []string) err
 			os.Exit(1)
 		}
 	}
-	for _, pkg := range valid_packages {
-		InfoLogger.Println("Package:", pkg)
-		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg, "-o", "am_transfers")
+
+	for _, pkg := range package_details {
+		InfoLogger.Println("Package:", pkg.Sip_name)
+		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg.Sip_name, "-o", "am_transfers")
 		op, err := cmd.Output()
 		InfoLogger.Println(string(op))
 		if err != nil {
 			ErrorLogger.Println(err)
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	// Append transfer file names to package details am_transfers[]
+	files, err := ioutil.ReadDir("am_transfers")
+	if err != nil {
+		ErrorLogger.Println((err))
+		return nil, err
+	}
+	//Update package details with newly generated am transfer files usding efficient search function
+	package_details, err = transfer_search(package_details, 0, files, 0)
+	if err != nil {
+		ErrorLogger.Println((err))
+		return nil, err
+	}
+	return package_details, nil
+}
+
+func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, file_index int) ([]PackageDetails, error) {
+	InfoLogger.Println(sips)
+	InfoLogger.Println(files)
+	if strings.HasPrefix(files[file_index].Name(), sips[sip_index].Sip_name) {
+		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, files[file_index].Name())
+		file_index += 1
+	} else {
+		sip_index += 1
+	}
+	if sip_index == len(sips) || file_index == len(files) {
+		return sips, nil
+	} else {
+		transfer_search(sips, sip_index, files, file_index)
+	}
+	err := errors.New("Error in transfer search. Didn't end properly.")
+	return nil, err
 }
 
 func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
@@ -572,18 +611,15 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData) (C
 		ErrorLogger.Println(err)
 		return collection_output, err
 	}
-	/*
-		for _, item := range collection_output.Items {
-			InfoLogger.Printf("%+v", item)
-		}
-	*/
-
+	for _, item := range collection_output.Items {
+		InfoLogger.Printf("%+v", item)
+	}
 	return collection_output, nil
 }
 
-func GenerateEarkAipActivity(ctx context.Context, valid_packages []string) error {
-	for _, pkg := range valid_packages {
-		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg, "eark_aips")
+func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) error {
+	for _, pkg := range package_details {
+		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg.Sip_name, "eark_aips")
 		op, err := cmd.Output()
 		InfoLogger.Println(string(op))
 		if err != nil {
@@ -631,6 +667,7 @@ func WaitForAMProcessActivity(ctx context.Context, collection_data CollectionDat
 				time.Sleep(time.Minute)
 			} else {
 				InfoLogger.Println(item.Name + "is completed.")
+				InfoLogger.Println(item)
 			}
 		}
 	}
@@ -713,7 +750,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, eark_packages []string
 		defer jsonFile.Close()
 
 		byteValue, _ := ioutil.ReadAll(jsonFile)
-		var data ValidatorData
+		var data CommonsValidatorData
 		json.Unmarshal([]byte(byteValue), &data)
 		validation_results[eark_packages[pkg]] = data.Summary.Result == "VALID"
 	}
@@ -755,6 +792,13 @@ func RemoveContents(dir string) error {
 	return nil
 }
 
+type PackageDetails struct {
+	Sip_name     string
+	Sip_valid    bool
+	Am_transfers []string
+	Aip_name     string
+}
+
 type BatchData struct {
 	Run_id string `json:"run_id"`
 	Time   string `json:"time"`
@@ -782,13 +826,13 @@ type EnduroItem struct {
 
 type PackageValidationResults map[string]bool
 
-type ValidatorData struct {
-	Header     map[string]interface{} `json:"header"`
-	Validation map[string]interface{} `json:"validation"`
-	Summary    ValidatorSummary       `json:"summary"`
+type CommonsValidatorData struct {
+	Header     map[string]interface{}  `json:"header"`
+	Validation map[string]interface{}  `json:"validation"`
+	Summary    CommonsValidatorSummary `json:"summary"`
 }
 
-type ValidatorSummary struct {
+type CommonsValidatorSummary struct {
 	Success  int    `json:"success"`
 	Warnings int    `json:"warnings"`
 	Errors   int    `json:"errors"`
