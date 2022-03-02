@@ -108,7 +108,7 @@ func registerEarkAipGeneratorWorkflowActivities(w worker.Worker) {
 }
 
 func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
-	var sips_list []string
+	// var sips_list []string
 	// var sip_validation_results PackageValidationResults
 	var package_details []PackageDetails
 
@@ -142,7 +142,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, ListSipPackagesActivityName)
 
-		err := future.Get(ctx, &sips_list)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -157,7 +157,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, ValidateSipPackagesActivityName, sips_list)
+		future := workflow.ExecuteActivity(activityOptions, ValidateSipPackagesActivityName, package_details)
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
@@ -357,28 +357,29 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	return nil
 }
 
-func ListSipPackagesActivity(ctx context.Context) ([]string, error) {
-	var sip_packages []string
+func ListSipPackagesActivity(ctx context.Context) ([]PackageDetails, error) {
+	// var sip_packages []string
+	var package_details []PackageDetails
 
 	files, err := ioutil.ReadDir("./sips")
 	if err != nil {
 		ErrorLogger.Println(err)
 		return nil, err
 	}
-	for _, f := range files {
-		if f.IsDir() {
-			sip_packages = append(sip_packages, f.Name())
+	for _, file := range files {
+		if file.IsDir() {
+			package_details = append(package_details, PackageDetails{Sip_name: file.Name()})
+			// sip_packages = append(sip_packages, file.Name())
 		}
 	}
-	return sip_packages, nil
+	return package_details, nil
 }
 
-func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) ([]PackageDetails, error) {
+func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
 	// validation_results := PackageValidationResults{}
-	var package_details []PackageDetails
 
-	for _, pkg := range sip_packages {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg)
+	for _, pkg := range package_details {
+		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {
@@ -386,6 +387,7 @@ func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) ([]
 			return nil, err
 		}
 
+		// Get the report location from the validation output string
 		path := strings.Replace(string(stdout), "\n", "", -1)
 
 		jsonFile, err := os.Open(path)
@@ -398,7 +400,8 @@ func ValidateSipPackagesActivity(ctx context.Context, sip_packages []string) ([]
 		byteValue, _ := ioutil.ReadAll(jsonFile)
 		var data CommonsValidatorData
 		json.Unmarshal([]byte(byteValue), &data)
-		package_details = append(package_details, PackageDetails{Sip_name: pkg, Sip_valid: data.Summary.Result == "VALID"})
+		pkg.Sip_valid = data.Summary.Result == "VALID"
+		// package_details = append(package_details, PackageDetails{Sip_name: pkg, Sip_valid: data.Summary.Result == "VALID"})
 		// validation_results[sip_packages[pkg]] = data.Summary.Result == "VALID"
 	}
 	return package_details, nil
