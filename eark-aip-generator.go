@@ -176,7 +176,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, SipValidationReportActivityName, package_details)
 
-		err := future.Get(ctx, &valid_packages)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -191,7 +191,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, PrepareAMTransferActivityName, valid_packages)
+		future := workflow.ExecuteActivity(activityOptions, PrepareAMTransferActivityName, package_details)
 
 		err := future.Get(ctx, nil)
 		if err != nil {
@@ -461,8 +461,8 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 }
 
 func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, file_index int) ([]PackageDetails, error) {
-	InfoLogger.Println(sips)
-	InfoLogger.Println(files)
+	InfoLogger.Println(sips[sip_index].Sip_name)
+	InfoLogger.Println(files[file_index].Name())
 	if strings.HasPrefix(files[file_index].Name(), sips[sip_index].Sip_name) {
 		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, files[file_index].Name())
 		file_index += 1
@@ -474,8 +474,8 @@ func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, 
 	} else {
 		transfer_search(sips, sip_index, files, file_index)
 	}
-	err := errors.New("Error in transfer search. Didn't end properly.")
-	return nil, err
+	//err := errors.New("Error in transfer search. Didn't end properly.")
+	return sips, nil
 }
 
 func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
