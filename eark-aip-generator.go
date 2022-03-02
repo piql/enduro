@@ -381,7 +381,6 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageD
 	for i, pkg := range package_details {
 		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
-
 		if err != nil {
 			ErrorLogger.Println(err)
 			return nil, err
@@ -439,7 +438,7 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 		InfoLogger.Println("Package:", pkg.Sip_name)
 		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg.Sip_name, "-o", "am_transfers")
 		op, err := cmd.Output()
-		InfoLogger.Println(string(op))
+		InfoLogger.Println("SipToAmTransfer Output:\n", string(op))
 		if err != nil {
 			ErrorLogger.Println(err)
 			return nil, err
@@ -464,7 +463,8 @@ func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, 
 	InfoLogger.Println(sips[sip_index].Sip_name)
 	InfoLogger.Println(files[file_index].Name())
 	if strings.HasPrefix(files[file_index].Name(), sips[sip_index].Sip_name) {
-		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, files[file_index].Name())
+		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, AmTransferDetails{Name: files[file_index].Name()})
+		// sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, files[file_index].Name())
 		file_index += 1
 	} else {
 		sip_index += 1
@@ -590,7 +590,7 @@ func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 	return nil
 }
 
-func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData) (CollectionData, error) {
+func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, package_details []PackageDetails) ([]PackageDetails, error) {
 
 	var collection_output CollectionData
 	submission_time := batch_data.Time
@@ -600,23 +600,40 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData) (C
 	resp, err := http.Get("http://localhost:9000/collection?earliest_created_time=" + submission_time)
 	if err != nil {
 		ErrorLogger.Println(err)
-		return collection_output, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ErrorLogger.Println(err)
-		return collection_output, err
+		return nil, err
 	}
 	err = json.Unmarshal(body, &collection_output)
 	if err != nil {
 		ErrorLogger.Println(err)
-		return collection_output, err
+		return nil, err
+	}
+
+	// The output will be in reverse order - with the last process first
+	// So we will iterate package details in reverse.
+	// This is to attempt to efficitently assign am trasnfer ids without nested loops
+	var col_i = len(collection_output.Items)
+	for pkg_i, pkg := range package_details {
+		am_t_i := 0
+		if collection_output.Items[col_i].Name == pkg.Am_transfers[am_t_i].Name {
+			package_details[pkg_i].Am_transfers[am_t_i].Id = collection_output.Items[col_i].Id
+			am_t_i += 1
+			col_i -= 1
+		} else {
+			err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + pkg.Am_transfers[am_t_i].Name + ": " + collection_output.Items[col_i].Name)
+			ErrorLogger.Println(err)
+			return nil, err
+		}
 	}
 	for _, item := range collection_output.Items {
 		InfoLogger.Printf("%+v", item)
 	}
-	return collection_output, nil
+	return package_details, nil
 }
 
 func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) error {
@@ -797,8 +814,13 @@ func RemoveContents(dir string) error {
 type PackageDetails struct {
 	Sip_name     string
 	Sip_valid    bool
-	Am_transfers []string
+	Am_transfers []AmTransferDetails
 	Aip_name     string
+}
+
+type AmTransferDetails struct {
+	Name string
+	Id   int
 }
 
 type BatchData struct {
