@@ -112,9 +112,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// var sip_validation_results PackageValidationResults
 	var package_details []PackageDetails
 
-	var valid_packages []string
+	// var valid_packages []string
 	var batch_submission_data BatchData
-	var collection_data CollectionData
+	// var collection_data CollectionData
 	var eark_validation_results PackageValidationResults
 
 	// Logger
@@ -260,7 +260,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, GenerateEarkAipActivityName, valid_packages)
+		future := workflow.ExecuteActivity(activityOptions, GenerateEarkAipActivityName, package_details)
 
 		err := future.Get(ctx, nil)
 		if err != nil {
@@ -274,12 +274,12 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
 			TaskList:               ValidateTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
-			StartToCloseTimeout:    time.Minute * 15 * time.Duration(len(valid_packages)),
+			StartToCloseTimeout:    time.Minute * 15 * time.Duration(len(package_details)),
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, WaitForAMProcessActivityName, collection_data)
+		future := workflow.ExecuteActivity(activityOptions, WaitForAMProcessActivityName, package_details)
 
-		err := future.Get(ctx, nil)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -294,9 +294,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, DownloadAndPlaceAMAIPActivityName, collection_data)
+		future := workflow.ExecuteActivity(activityOptions, DownloadAndPlaceAMAIPActivityName, package_details)
 
-		err := future.Get(ctx, nil)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -311,7 +311,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, UpdatePreservationMetsActivityName, valid_packages)
+		future := workflow.ExecuteActivity(activityOptions, UpdatePreservationMetsActivityName, package_details)
 
 		err := future.Get(ctx, nil)
 		if err != nil {
@@ -328,7 +328,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, ValidateEarkAipPackagesActivityName, valid_packages)
+		future := workflow.ExecuteActivity(activityOptions, ValidateEarkAipPackagesActivityName, package_details)
 
 		err := future.Get(ctx, &eark_validation_results)
 		if err != nil {
@@ -347,7 +347,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, EarkAipValidationReportActivityName, eark_validation_results)
 
-		err := future.Get(ctx, &valid_packages)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -595,8 +595,6 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	var collection_output CollectionData
 	submission_time := batch_data.Time
 
-	// InfoLogger.Println("http://localhost:9000/collection?earliest_created_time=" + submission_time)
-
 	resp, err := http.Get("http://localhost:9000/collection?earliest_created_time=" + submission_time)
 	if err != nil {
 		ErrorLogger.Println(err)
@@ -617,7 +615,7 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	// The output will be in reverse order - with the last process first
 	// So we will iterate collection output in reverse.
 	// This is to attempt to efficitently assign am trasnfer ids without exponentially timed nested loops
-	var col_i = len(collection_output.Items)-1
+	var col_i = len(collection_output.Items) - 1
 	for pkg_i, pkg := range package_details {
 		if strings.HasPrefix(collection_output.Items[col_i].Name, pkg.Sip_name) {
 			for am_t_i, am_trans := range pkg.Am_transfers {
@@ -652,86 +650,83 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 	return nil
 }
 
-func WaitForAMProcessActivity(ctx context.Context, collection_data CollectionData) error {
+func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDetails) error {
+	for i, pkg := range package_details {
+		for j, am_trans := range pkg.Am_transfers {
+			completed_process := false
+			for ok := true; ok; ok = !completed_process {
+				var collection_item EnduroItem
+				resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id))
 
-	for _, item := range collection_data.Items {
-		completed_process := false
-		for ok := true; ok; ok = !completed_process {
-
-			var collection_item EnduroItem
-
-			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", item.Id))
-
-			if err != nil {
-				ErrorLogger.Println(err)
-				return err
-			}
-			defer resp.Body.Close()
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				ErrorLogger.Println(err)
-				return err
-			}
-			err = json.Unmarshal(body, &collection_item)
-			if err != nil {
-				ErrorLogger.Println(err)
-				return err
-			}
-			// InfoLogger.Printf("Collection Item: %+v", collection_item)
-
-			if collection_item.Status == "error" {
-				err = errors.New("Error: AM Process Failed: " + collection_item.Workflow_id)
-				ErrorLogger.Println(err)
-				return err
-			}
-			completed_process = collection_item.Status == "done"
-			if !completed_process {
-				time.Sleep(time.Minute)
-			} else {
-				InfoLogger.Println(item.Name + "is completed.")
-				InfoLogger.Println(item)
+				if err != nil {
+					ErrorLogger.Println(err)
+					return err
+				}
+				defer resp.Body.Close()
+				body, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					ErrorLogger.Println(err)
+					return err
+				}
+				err = json.Unmarshal(body, &collection_item)
+				if err != nil {
+					ErrorLogger.Println(err)
+					return err
+				}
+				// InfoLogger.Printf("Collection Item: %+v", collection_item)
+				if collection_item.Status == "error" {
+					err = errors.New("Error: AM Process Failed: " + collection_item.Workflow_id)
+					ErrorLogger.Println(err)
+					return err
+				}
+				completed_process = collection_item.Status == "done"
+				if !completed_process {
+					time.Sleep(time.Minute)
+				} else {
+					package_details[i].Am_transfers[j].Am_aip_name = collection_item.Aip_id
+					InfoLogger.Println(am_trans.Name + "is completed.")
+					InfoLogger.Println(am_trans)
+				}
 			}
 		}
 	}
 	return nil
 }
 
-func DownloadAndPlaceAMAIPActivity(ctx context.Context, collection_data CollectionData) error {
+func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []PackageDetails) error {
 
-	for _, item := range collection_data.Items {
+	for _, pkg := range package_details {
+		for _, am_trans := range pkg.Am_transfers {
+			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id, "/download"))
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+			defer resp.Body.Close()
 
-		// InfoLogger.Println(fmt.Sprint("http://localhost:9000/collection/", item.Id, "/download"))
+			if resp.StatusCode != 200 {
+				return errors.New("Error: Unsuccesful download request")
+			}
 
-		resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", item.Id, "/download"))
-		if err != nil {
-			ErrorLogger.Println(err)
-			return err
+			preservation_file := "eark_aips/" + pkg.Sip_name + "/representations/rep01.1/data/" + am_trans.Name + ".zip"
+
+			// Create the file
+			out, err := os.Create(preservation_file)
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+			defer out.Close()
+
+			// Write the body to file
+			_, err = io.Copy(out, resp.Body)
+			if err != nil {
+				ErrorLogger.Println(err)
+				return err
+			}
+
+			InfoLogger.Println(preservation_file + "downloaded and placed.")
 		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			return errors.New("Error: Unsuccesful download request")
-		}
-
-		preservation_file := "eark_aips/" + item.Name + "/representations/rep01.1/data/" + item.Name + ".zip"
-
-		// Create the file
-		// out, err := os.Create("am_aips/" + item.Name + string(time.Now().Format("01-02-2006")+time.Now().Format("15:04:05")) + ".zip")
-		out, err := os.Create(preservation_file)
-		if err != nil {
-			ErrorLogger.Println(err)
-			return err
-		}
-		defer out.Close()
-
-		// Write the body to file
-		_, err = io.Copy(out, resp.Body)
-		if err != nil {
-			ErrorLogger.Println(err)
-			return err
-		}
-
-		InfoLogger.Println(preservation_file + "downloaded and placed.")
 	}
 	return nil
 }
@@ -822,8 +817,9 @@ type PackageDetails struct {
 }
 
 type AmTransferDetails struct {
-	Name string
-	Id   int
+	Name        string
+	Id          int
+	Am_aip_name string
 }
 
 type BatchData struct {
