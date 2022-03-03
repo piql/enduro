@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -620,13 +621,16 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	// The output will be in reverse order - with the last process first
 	// So we will iterate collection output in reverse.
 	// This is to attempt to efficitently assign am trasnfer ids without exponentially timed nested loops
-	var col_i = len(collection_output.Items) - 1
+	sort.Slice(collection_output.Items[:], func(i, j int) bool {
+		return collection_output.Items[i].Name < collection_output.Items[j].Name
+	})
+	var col_i = 0
 	for pkg_i, pkg := range package_details {
 		if strings.HasPrefix(collection_output.Items[col_i].Name, pkg.Sip_name) {
 			for am_t_i, am_trans := range pkg.Am_transfers {
 				if am_trans.Name == collection_output.Items[col_i].Name {
 					package_details[pkg_i].Am_transfers[am_t_i].Id = collection_output.Items[col_i].Id
-					col_i = col_i - 1
+					col_i = col_i + 1
 				} else {
 					err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + am_trans.Name + ": " + collection_output.Items[col_i].Name)
 					ErrorLogger.Println(package_details, collection_output)
@@ -649,7 +653,7 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 		op, err := cmd.Output()
 		split_output := strings.Split(string(op), "\n")
 		aip_name := split_output[len(split_output)-2]
-		InfoLogger.Println(split_output) 
+		InfoLogger.Println(split_output)
 		InfoLogger.Println("SipToEarkAip Output:\n", aip_name)
 		package_details[i].Aip_name = aip_name
 		if err != nil {
