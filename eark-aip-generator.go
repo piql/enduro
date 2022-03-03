@@ -270,7 +270,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, GenerateEarkAipActivityName, package_details)
 
-		err := future.Get(ctx, nil)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -698,8 +698,7 @@ func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDeta
 					time.Sleep(time.Minute)
 				} else {
 					package_details[i].Am_transfers[j].Am_aip_name = collection_item.Aip_id
-					InfoLogger.Println(am_trans.Name + "is completed.")
-					InfoLogger.Println(am_trans)
+					InfoLogger.Println(am_trans.Name + " AM process completed.")
 				}
 			}
 		}
@@ -710,7 +709,7 @@ func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDeta
 func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []PackageDetails) error {
 
 	for _, pkg := range package_details {
-		for _, am_trans := range pkg.Am_transfers {
+		for j, am_trans := range pkg.Am_transfers {
 			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id, "/download"))
 			if err != nil {
 				ErrorLogger.Println(err)
@@ -721,8 +720,8 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 			if resp.StatusCode != 200 {
 				return errors.New("Error: Unsuccesful download request")
 			}
-
-			preservation_file := "eark_aips/" + pkg.Sip_name + "/representations/rep01.1/data/" + am_trans.Name + ".zip"
+			var rep_num = fmt.Sprintf("%02d", j+1)
+			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1/data/" + am_trans.Name + ".zip"
 
 			// Create the file
 			out, err := os.Create(preservation_file)
@@ -739,7 +738,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 				return err
 			}
 
-			InfoLogger.Println(preservation_file + "downloaded and placed.")
+			InfoLogger.Println(preservation_file + " downloaded and placed.")
 		}
 	}
 	return nil
