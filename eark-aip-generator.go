@@ -750,8 +750,8 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []Packa
 			var rep_num = fmt.Sprintf("%02d", j+1)
 			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1"
 			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
-			op, err := cmd.Output()
-			InfoLogger.Println(string(op))
+			_, err := cmd.Output()
+			// InfoLogger.Println(string(op))
 			if err != nil {
 				ErrorLogger.Println(err.Error())
 				return err
@@ -765,7 +765,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []Pack
 	// validation_results := PackageValidationResults{}
 
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+pkg.Aip_name)
+		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {
