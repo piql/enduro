@@ -629,6 +629,7 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 					col_i = col_i - 1
 				} else {
 					err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + am_trans.Name + ": " + collection_output.Items[col_i].Name)
+					ErrorLogger.Println(package_details, collection_output)
 					ErrorLogger.Println(err)
 					return nil, err
 				}
@@ -647,7 +648,8 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/sip_to_eark_aip.py", "sips/"+pkg.Sip_name, "eark_aips")
 		op, err := cmd.Output()
 		split_output := strings.Split(string(op), "\n")
-		aip_name := split_output[len(split_output)-1]
+		aip_name := split_output[len(split_output)-2]
+		InfoLogger.Println(split_output) 
 		InfoLogger.Println("SipToEarkAip Output:\n", aip_name)
 		package_details[i].Aip_name = aip_name
 		if err != nil {
