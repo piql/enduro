@@ -116,7 +116,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// var valid_packages []string
 	var batch_submission_data BatchData
 	// var collection_data CollectionData
-	var eark_validation_results PackageValidationResults
+	// var eark_validation_results PackageValidationResults
 
 	// Logger
 	// If the file doesn't exist, create it or append to the file
@@ -338,7 +338,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		future := workflow.ExecuteActivity(activityOptions, ValidateEarkAipPackagesActivityName, package_details)
 
-		err := future.Get(ctx, &eark_validation_results)
+		err := future.Get(ctx, &package_details)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -353,9 +353,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			StartToCloseTimeout:    time.Minute,
 		})
 
-		future := workflow.ExecuteActivity(activityOptions, EarkAipValidationReportActivityName, eark_validation_results)
+		future := workflow.ExecuteActivity(activityOptions, EarkAipValidationReportActivityName, package_details)
 
-		err := future.Get(ctx, &package_details)
+		err := future.Get(ctx, nil)
 		if err != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -744,25 +744,28 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 	return nil
 }
 
-func UpdatePreservationMetsActivity(ctx context.Context, valid_packages []string) error {
-	for _, pkg := range valid_packages {
-		location := "eark_aips/" + pkg + "/representations/rep01.1"
-		cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
-		op, err := cmd.Output()
-		InfoLogger.Println(string(op))
-		if err != nil {
-			ErrorLogger.Println(err.Error())
-			return err
+func UpdatePreservationMetsActivity(ctx context.Context, package_details []PackageDetails) error {
+	for _, pkg := range package_details {
+		for j := range pkg.Am_transfers {
+			var rep_num = fmt.Sprintf("%02d", j+1)
+			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1"
+			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
+			op, err := cmd.Output()
+			InfoLogger.Println(string(op))
+			if err != nil {
+				ErrorLogger.Println(err.Error())
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-func ValidateEarkAipPackagesActivity(ctx context.Context, eark_packages []string) (PackageValidationResults, error) {
-	validation_results := PackageValidationResults{}
+func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+	// validation_results := PackageValidationResults{}
 
-	for pkg := range eark_packages {
-		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+eark_packages[pkg])
+	for i, pkg := range package_details {
+		cmd := exec.Command("java", "-jar", "scripts/java/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {
@@ -782,25 +785,18 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, eark_packages []string
 		byteValue, _ := ioutil.ReadAll(jsonFile)
 		var data CommonsValidatorData
 		json.Unmarshal([]byte(byteValue), &data)
-		validation_results[eark_packages[pkg]] = data.Summary.Result == "VALID"
+		package_details[i].Aip_valid = data.Summary.Result == "VALID"
 	}
-	return validation_results, nil
+	return package_details, nil
 }
 
-func EarkAipValidationReportActivity(ctx context.Context, validation_results PackageValidationResults) ([]string, error) {
-	var valid_packages []string
-
-	for identifier, passed := range validation_results {
-		if passed {
-			valid_packages = append(valid_packages, identifier)
+func EarkAipValidationReportActivity(ctx context.Context, package_details []PackageDetails) error {
+	for _, pkg := range package_details {
+		if !pkg.Aip_valid {
+			WarningLogger.Println("AIP Package:", pkg.Sip_name, pkg.Aip_name, "failed validation")
 		}
 	}
-	if len(valid_packages) == 0 {
-		err := errors.New("No valid eark packages")
-		ErrorLogger.Println(err)
-		return nil, err
-	}
-	return valid_packages, nil
+	return nil
 }
 
 func RemoveContents(dir string) error {
@@ -827,6 +823,7 @@ type PackageDetails struct {
 	Sip_valid    bool
 	Am_transfers []AmTransferDetails
 	Aip_name     string
+	Aip_valid    bool
 }
 
 type AmTransferDetails struct {
