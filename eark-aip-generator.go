@@ -440,8 +440,8 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 	if _, err := os.Stat("am_transfers"); !os.IsNotExist(err) {
 		err := RemoveContents("am_transfers")
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			ErrorLogger.Println(err)
+			return nil, err
 		}
 	}
 
@@ -450,8 +450,8 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 	for _, pkg := range package_details {
 		InfoLogger.Println("Package:", pkg.Sip_name)
 		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg.Sip_name, "-o", "am_transfers")
-		_, err := cmd.Output()
-		//InfoLogger.Println("SipToAmTransfer Output:\n", string(op))
+		op, err := cmd.Output()
+		InfoLogger.Println("SipToAmTransfer Output:\n", string(op))
 		if err != nil {
 			ErrorLogger.Println(err)
 			return nil, err
