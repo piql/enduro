@@ -463,8 +463,9 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 		ErrorLogger.Println((err))
 		return nil, err
 	}
-	//Update package details with newly generated am transfer files useing efficient search function
-	package_details, err = transfer_search(package_details, 0, files, 0)
+	// Update package details with newly generated am transfer files useing efficient search function
+	// package_details, err = transfer_search(package_details, 0, files, 0)
+	package_details, err = tsearch(package_details, files)
 	if err != nil {
 		ErrorLogger.Println((err))
 		return nil, err
@@ -493,6 +494,20 @@ func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, 
 	}
 	WarningLogger.Println("Made it to end.")
 	return sips, nil
+}
+
+func tsearch(package_details []PackageDetails, files []fs.FileInfo) ([]PackageDetails, error) {
+	var file_i = 0
+	for i, pkg := range package_details {
+		if strings.HasPrefix(files[file_i].Name(), pkg.Sip_name) {
+			package_details[i].Am_transfers = append(package_details[i].Am_transfers, AmTransferDetails{Name: files[file_i].Name()})
+			file_i += 1
+		} else {
+			err := errors.New("Mismatch in transfer search")
+			return nil, err
+		}
+	}
+	return package_details, nil
 }
 
 func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
