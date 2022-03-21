@@ -40,8 +40,8 @@ stripTopLevelDir = true
 [[pipeline]]
 name = "am"
 baseURL = "http://127.0.0.1:62080"
-user = "penwern"
-key = "727b456b8f8b8cc5ee66144239ff0b44ae0c7c17"
+user = "test"
+key = "test"
 transferDir = "~/.am/ss-location-data"
 processingDir = ""
 processingConfig = "automated"
