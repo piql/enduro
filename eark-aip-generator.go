@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
+
+	//"io/fs"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -763,16 +764,20 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 	// Place the downloaded AIPs in their respective directory within the EARK AIP representations folder
 	for _, pkg := range package_details {
 		for j, am_trans := range pkg.Am_transfers {
-			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id, "/download"))
-			if err != nil {
-				ErrorLogger.Println(err)
-				return err
-			}
-			defer resp.Body.Close()
 
-			if resp.StatusCode != 200 {
-				return errors.New("Error: Unsuccesful download request")
-			}
+			/*
+				resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id, "/download"))
+				if err != nil {
+					ErrorLogger.Println(err)
+					return err
+				}
+				defer resp.Body.Close()
+
+				if resp.StatusCode != 200 {
+					return errors.New("Error: Unsuccesful download request")
+				}
+
+			*/
 
 			var rep_num = fmt.Sprintf("%02d", j+1)
 			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1/data/" + am_trans.Name + ".zip"
@@ -785,12 +790,14 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 			}
 			defer out.Close()
 
-			// Write the body to file
-			_, err = io.Copy(out, resp.Body)
-			if err != nil {
-				ErrorLogger.Println(err)
-				return err
-			}
+			/*
+				// Write the body to file
+				_, err = io.Copy(out, resp.Body)
+				if err != nil {
+					ErrorLogger.Println(err)
+					return err
+				}
+			*/
 		}
 	}
 	return nil
