@@ -44,4 +44,4 @@ services:
     environment:
       - "CADENCE_TCHANNEL_PEERS=cadence:7400"
     ports:
-      - "127.0.0.1:7440:8088"
+      - "0.0.0.0:7440:8088"
