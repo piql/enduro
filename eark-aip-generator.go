@@ -465,47 +465,10 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDet
 	}
 	// Update package details with newly generated am transfer files useing efficient search function
 	// package_details, err = transfer_search(package_details, 0, files, 0)
-	package_details, err = tsearch(package_details, files)
+	package_details, err = transfer_search(package_details, files)
 	if err != nil {
 		ErrorLogger.Println((err))
 		return nil, err
-	}
-	return package_details, nil
-}
-
-// This function efficiently searches through the files[] appending each am_transfer file to its respective SIP (package_details.Am_transfers[])
-// It does this recursively, using indexes for the sips[] and files[]. Only increasing files_index when a match has been found
-// (i.e. file name starts with sip name) and appended. And only increasing the sips_index when a match isn't found and therefore must be an
-// am_transfer for the next SIP. This rides on the fect that ioutil.ReadDir returns and array in alphabetical order and package_package details
-// is also alphabetical on Sip_name.
-func transfer_search(sips []PackageDetails, sip_index int, files []fs.FileInfo, file_index int) ([]PackageDetails, error) {
-	if strings.HasPrefix(files[file_index].Name(), sips[sip_index].Sip_name) {
-		sips[sip_index].Am_transfers = append(sips[sip_index].Am_transfers, AmTransferDetails{Name: files[file_index].Name()})
-		file_index += 1
-	} else {
-		sip_index += 1
-	}
-	if sip_index == len(sips) || file_index == len(files) {
-		WarningLogger.Println(len(sips), sip_index, len(files), file_index)
-		return sips, nil
-	} else {
-		WarningLogger.Println("Looping.")
-		transfer_search(sips, sip_index, files, file_index)
-	}
-	WarningLogger.Println("Made it to end.")
-	return sips, nil
-}
-
-func tsearch(package_details []PackageDetails, files []fs.FileInfo) ([]PackageDetails, error) {
-	var file_i = 0
-	for i, pkg := range package_details {
-		if strings.HasPrefix(files[file_i].Name(), pkg.Sip_name) {
-			package_details[i].Am_transfers = append(package_details[i].Am_transfers, AmTransferDetails{Name: files[file_i].Name()})
-			file_i += 1
-		} else {
-			err := errors.New("Mismatch in transfer search")
-			return nil, err
-		}
 	}
 	return package_details, nil
 }
@@ -880,6 +843,21 @@ func RemoveContents(dir string) error {
 		}
 	}
 	return nil
+}
+
+// This function efficiently searches through the files[] appending each am_transfer file to its respective SIP (package_details.Am_transfers[])
+func transfer_search(package_details []PackageDetails, files []fs.FileInfo) ([]PackageDetails, error) {
+	var file_i = 0
+	for i, pkg := range package_details {
+		if strings.HasPrefix(files[file_i].Name(), pkg.Sip_name) {
+			package_details[i].Am_transfers = append(package_details[i].Am_transfers, AmTransferDetails{Name: files[file_i].Name()})
+			file_i += 1
+		} else {
+			err := errors.New("Mismatch in transfer search")
+			return nil, err
+		}
+	}
+	return package_details, nil
 }
 
 // Used throughout the process to track details pertaining to each package
