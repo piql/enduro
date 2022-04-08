@@ -815,12 +815,22 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []Pack
 func EarkAipValidationReportActivity(ctx context.Context, package_details []PackageDetails) error {
 
 	InfoLogger.Println("Starting: EARK AIP Validation Report")
+	mapping := []SIPAIPMapping{}
 
 	// Display in the logs every EARK AIP that fails verification
 	for _, pkg := range package_details {
 		if !pkg.Aip_valid {
 			WarningLogger.Println("AIP Package:", pkg.Sip_name, pkg.Aip_name, "failed validation")
 		}
+		mapping = append(mapping, SIPAIPMapping{pkg.Sip_name, pkg.Aip_name})
+	}
+	buf, err := json.Marshal(mapping)
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile("logs/SIPAIPMapping.json", buf, 0644)
+	if err != nil {
+		panic(err)
 	}
 	return nil
 }
@@ -947,4 +957,9 @@ type CommonsValidatorSummary struct {
 
 	// Result should read "VALID" if sucessful, otherwise invalid
 	Result string `json:"result"`
+}
+
+type SIPAIPMapping struct {
+	SIPName string
+	AIPName string
 }
