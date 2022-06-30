@@ -3,7 +3,7 @@
 	url = https://github.com/google/docsy.git
 [submodule "scripts/sip_to_eark_aip"]
 	path = scripts/sip_to_eark_aip
-	url = https://github.com/camlyall/sip_to_eark_aip.git
+	url = https://github.com/penwern/sip_to_eark_aip.git
 [submodule "scripts/sip_to_am_transfer"]
 	path = scripts/sip_to_am_transfer
-	url = https://github.com/camlyall/sip_to_am_transfer.git
+	url = https://github.com/penwern/sip_to_am_transfer.git
