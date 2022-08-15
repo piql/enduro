@@ -25,18 +25,19 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/artefactual-labs/enduro/internal/api"
-	"github.com/artefactual-labs/enduro/internal/batch"
-	"github.com/artefactual-labs/enduro/internal/cadence"
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/db"
-	nha_activities "github.com/artefactual-labs/enduro/internal/nha/activities"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/internal/validation"
-	"github.com/artefactual-labs/enduro/internal/watcher"
-	"github.com/artefactual-labs/enduro/internal/workflow"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/api"
+	"github.com/penwern/enduro/internal/batch"
+	"github.com/penwern/enduro/internal/eark"
+	"github.com/penwern/enduro/internal/cadence"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/db"
+	nha_activities "github.com/penwern/enduro/internal/nha/activities"
+	"github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/validation"
+	"github.com/penwern/enduro/internal/watcher"
+	"github.com/penwern/enduro/internal/workflow"
+	"github.com/penwern/enduro/internal/workflow/activities"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 const appName = "enduro"
@@ -145,6 +146,14 @@ func main() {
 		batchsvc = batch.NewService(logger.WithName("batch"), workflowClient, config.Watcher.CompletedDirs())
 	}
 
+	
+	// Set up the eark service.
+	var earksvc eark.Service
+	{
+		earksvc = eark.NewService(logger.WithName("eark"), workflowClient, config.Watcher.CompletedDirs())
+	}
+
+
 	// Set up the collection service.
 	var colsvc collection.Service
 	{
@@ -169,7 +178,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &config.API, pipesvc, batchsvc, colsvc)
+				srv = api.HTTPServer(logger, &config.API, pipesvc, batchsvc, earksvc, colsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -262,6 +271,12 @@ func main() {
 
 		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, cadencesdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
+
+		// No need as below will suffice
+		/**
+		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, cadencesdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
+		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
+		*/
 		
 		registerEarkAipGeneratorWorkflowActivities(w)
 

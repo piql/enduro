@@ -23,23 +23,27 @@ import (
 	goahttpmwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
 
-	"github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	batchsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server"
-	collectionsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/collection/server"
-	pipelinesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/pipeline/server"
-	swaggersvr "github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server"
-	"github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
-	intbatch "github.com/artefactual-labs/enduro/internal/batch"
-	intcol "github.com/artefactual-labs/enduro/internal/collection"
-	intpipe "github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/ui"
+	"github.com/penwern/enduro/internal/api/gen/batch"
+	"github.com/penwern/enduro/internal/api/gen/eark"
+	"github.com/penwern/enduro/internal/api/gen/collection"
+	batchsvr "github.com/penwern/enduro/internal/api/gen/http/batch/server"
+	earksvr "github.com/penwern/enduro/internal/api/gen/http/eark/server"
+	collectionsvr "github.com/penwern/enduro/internal/api/gen/http/collection/server"
+	pipelinesvr "github.com/penwern/enduro/internal/api/gen/http/pipeline/server"
+	swaggersvr "github.com/penwern/enduro/internal/api/gen/http/swagger/server"
+	"github.com/penwern/enduro/internal/api/gen/pipeline"
+	intbatch "github.com/penwern/enduro/internal/batch"
+	inteark "github.com/penwern/enduro/internal/eark"
+	intcol "github.com/penwern/enduro/internal/collection"
+	intpipe "github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/ui"
 )
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
 	pipesvc intpipe.Service,
 	batchsvc intbatch.Service,
+	earksvc inteark.Service,
 	colsvc intcol.Service,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
@@ -62,6 +66,12 @@ func HTTPServer(
 	batchErrorHandler := errorHandler(logger, "Batch error.")
 	var batchServer *batchsvr.Server = batchsvr.New(batchEndpoints, mux, dec, enc, batchErrorHandler, nil)
 	batchsvr.Mount(mux, batchServer)
+
+	// Eark service.
+	var earkEndpoints *eark.Endpoints = eark.NewEndpoints(earksvc)
+	earkErrorHandler := errorHandler(logger, "Eark error.")
+	var earkServer *earksvr.Server = earksvr.New(earkEndpoints, mux, dec, enc, earkErrorHandler, nil)
+	earksvr.Mount(mux, earkServer)
 
 	// Collection service.
 	var collectionEndpoints *collection.Endpoints = collection.NewEndpoints(colsvc.Goa())

@@ -12,30 +12,34 @@ define NEWLINE
 endef
 
 IGNORED_PACKAGES := \
-	github.com/artefactual-labs/enduro/hack/gencols \
-	github.com/artefactual-labs/enduro/hack/landfill/gencols \
-	github.com/artefactual-labs/enduro/internal/amclient/fake \
-	github.com/artefactual-labs/enduro/internal/api/design \
-	github.com/artefactual-labs/enduro/internal/api/gen/batch \
-	github.com/artefactual-labs/enduro/internal/api/gen/collection \
-	github.com/artefactual-labs/enduro/internal/api/gen/collection/views \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/cli/enduro \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/collection/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/collection/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/pipeline/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/pipeline/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/pipeline \
-	github.com/artefactual-labs/enduro/internal/api/gen/pipeline/views \
-	github.com/artefactual-labs/enduro/internal/api/gen/swagger \
-	github.com/artefactual-labs/enduro/internal/batch/fake \
-	github.com/artefactual-labs/enduro/internal/collection/fake \
-	github.com/artefactual-labs/enduro/internal/pipeline/fake \
-	github.com/artefactual-labs/enduro/internal/testutil \
-	github.com/artefactual-labs/enduro/internal/watcher/fake
+	github.com/penwern/enduro/hack/gencols \
+	github.com/penwern/enduro/hack/landfill/gencols \
+	github.com/penwern/enduro/internal/amclient/fake \
+	github.com/penwern/enduro/internal/api/design \
+	github.com/penwern/enduro/internal/api/gen/batch \
+	github.com/penwern/enduro/internal/api/gen/eark \
+	github.com/penwern/enduro/internal/api/gen/collection \
+	github.com/penwern/enduro/internal/api/gen/collection/views \
+	github.com/penwern/enduro/internal/api/gen/http/batch/client \
+	github.com/penwern/enduro/internal/api/gen/http/batch/server \
+	github.com/penwern/enduro/internal/api/gen/http/eark/client \
+	github.com/penwern/enduro/internal/api/gen/http/eark/server \
+	github.com/penwern/enduro/internal/api/gen/http/cli/enduro \
+	github.com/penwern/enduro/internal/api/gen/http/collection/client \
+	github.com/penwern/enduro/internal/api/gen/http/collection/server \
+	github.com/penwern/enduro/internal/api/gen/http/pipeline/client \
+	github.com/penwern/enduro/internal/api/gen/http/pipeline/server \
+	github.com/penwern/enduro/internal/api/gen/http/swagger/client \
+	github.com/penwern/enduro/internal/api/gen/http/swagger/server \
+	github.com/penwern/enduro/internal/api/gen/pipeline \
+	github.com/penwern/enduro/internal/api/gen/pipeline/views \
+	github.com/penwern/enduro/internal/api/gen/swagger \
+	github.com/penwern/enduro/internal/batch/fake \
+	github.com/penwern/enduro/internal/eark/fake \
+	github.com/penwern/enduro/internal/collection/fake \
+	github.com/penwern/enduro/internal/pipeline/fake \
+	github.com/penwern/enduro/internal/testutil \
+	github.com/penwern/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
 TEST_PACKAGES	:= $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 
@@ -150,6 +154,7 @@ flush:
 
 gen-mock:
 	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fakegithub.com/penwern/enduro/internal/batch Service
+	$(MOCKGEN) -destination=./internal/eark/fake/mock_eark.go -package=fakegithub.com/penwern/enduro/internal/eark Service
 	$(MOCKGEN) -destination=./internal/collection/fake/mock_collection.go -package=fakegithub.com/penwern/enduro/internal/collection Service
 	$(MOCKGEN) -destination=./internal/pipeline/fake/mock_pipeline.go -package=fakegithub.com/penwern/enduro/internal/pipeline Service
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fakegithub.com/penwern/enduro/internal/watcher Service
