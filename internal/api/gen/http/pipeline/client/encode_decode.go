@@ -3,7 +3,7 @@
 // pipeline HTTP client encoders and decoders
 //
 // Command:
-// $ goa-v3.5.5 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
 // internal/api
 
 package client

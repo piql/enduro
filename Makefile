@@ -72,7 +72,7 @@ lint:
 	$(GOLANGCI_LINT) run -v --timeout=5m --fix
 
 goagen:
-	$(GOA) gen github.com/artefactual-labs/enduro/internal/api/design -o internal/api
+	$(GOA) gengithub.com/penwern/enduro/internal/api/design -o internal/api
 
 clean:
 	rm -rf ./build ./dist
@@ -149,15 +149,15 @@ flush:
 	docker-compose exec --user=root mysql mysql -hlocalhost -uroot -proot123 -e "create database enduro"
 
 gen-mock:
-	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-labs/enduro/internal/batch Service
-	$(MOCKGEN) -destination=./internal/collection/fake/mock_collection.go -package=fake github.com/artefactual-labs/enduro/internal/collection Service
-	$(MOCKGEN) -destination=./internal/pipeline/fake/mock_pipeline.go -package=fake github.com/artefactual-labs/enduro/internal/pipeline Service
-	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-labs/enduro/internal/watcher Service
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_ingest.go -package=fake github.com/artefactual-labs/enduro/internal/amclient IngestService
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_processing_config.go -package=fake github.com/artefactual-labs/enduro/internal/amclient ProcessingConfigService
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_transfer.go -package=fake github.com/artefactual-labs/enduro/internal/amclient TransferService
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_jobs.go -package=fake github.com/artefactual-labs/enduro/internal/amclient JobsService
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_package.go -package=fake github.com/artefactual-labs/enduro/internal/amclient PackageService
-	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_task.go -package=fake github.com/artefactual-labs/enduro/internal/amclient TaskService
+	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fakegithub.com/penwern/enduro/internal/batch Service
+	$(MOCKGEN) -destination=./internal/collection/fake/mock_collection.go -package=fakegithub.com/penwern/enduro/internal/collection Service
+	$(MOCKGEN) -destination=./internal/pipeline/fake/mock_pipeline.go -package=fakegithub.com/penwern/enduro/internal/pipeline Service
+	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fakegithub.com/penwern/enduro/internal/watcher Service
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_ingest.go -package=fakegithub.com/penwern/enduro/internal/amclient IngestService
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_processing_config.go -package=fakegithub.com/penwern/enduro/internal/amclient ProcessingConfigService
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_transfer.go -package=fakegithub.com/penwern/enduro/internal/amclient TransferService
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_jobs.go -package=fakegithub.com/penwern/enduro/internal/amclient JobsService
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_package.go -package=fakegithub.com/penwern/enduro/internal/amclient PackageService
+	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_task.go -package=fakegithub.com/penwern/enduro/internal/amclient TaskService
 
 .PHONY: *
