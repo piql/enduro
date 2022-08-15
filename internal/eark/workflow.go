@@ -59,7 +59,7 @@ func (a *earkActivity) Execute(ctx context.Context, params earkWorkflowInput) er
 	}
 	for _, file := range files {
 		req := collection.ProcessingWorkflowRequest{
-			earkDir:         params.Path,
+			BatchDir:         params.Path,
 			Key:              file.Name(),
 			IsDir:            file.IsDir(),
 			PipelineNames:    pipelines,

@@ -17,6 +17,7 @@ import (
 type Endpoints struct {
 	Submit goa.Endpoint
 	Status goa.Endpoint
+	Hints  goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "eark" service with endpoints.
@@ -24,6 +25,7 @@ func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		Submit: NewSubmitEndpoint(s),
 		Status: NewStatusEndpoint(s),
+		Hints:  NewHintsEndpoint(s),
 	}
 }
 
@@ -31,6 +33,7 @@ func NewEndpoints(s Service) *Endpoints {
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
 	e.Status = m(e.Status)
+	e.Hints = m(e.Hints)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -46,5 +49,13 @@ func NewSubmitEndpoint(s Service) goa.Endpoint {
 func NewStatusEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		return s.Status(ctx)
+	}
+}
+
+// NewHintsEndpoint returns an endpoint function that calls the method "hints"
+// of service "eark".
+func NewHintsEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return s.Hints(ctx)
 	}
 }

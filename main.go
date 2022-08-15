@@ -273,12 +273,12 @@ func main() {
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
 		// No need as below will suffice
-		/**
-		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, cadencesdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
-		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
-		*/
 		
-		registerEarkAipGeneratorWorkflowActivities(w)
+		w.RegisterWorkflowWithOptions(eark.EarkWorkflow, cadencesdk_workflow.RegisterOptions{Name: eark.EarkWorkflowName})
+		w.RegisterActivityWithOptions(eark.NewEarkActivity(earksvc).Execute, cadencesdk_activity.RegisterOptions{Name: eark.EarkActivityName})
+		
+		
+		//registerEarkAipGeneratorWorkflowActivities(w)
 
 		g.Add(
 			func() error {

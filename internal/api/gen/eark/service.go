@@ -19,6 +19,8 @@ type Service interface {
 	Submit(context.Context) (res *EarkResult, err error)
 	// Retrieve status of current eark operation.
 	Status(context.Context) (res *EarkStatusResult, err error)
+	// Retrieve form hints
+	Hints(context.Context) (res *EarkHintsResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -29,7 +31,7 @@ const ServiceName = "eark"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [2]string{"submit", "status"}
+var MethodNames = [3]string{"submit", "status", "hints"}
 
 // EarkResult is the result type of the eark service submit method.
 type EarkResult struct {
@@ -43,6 +45,12 @@ type EarkStatusResult struct {
 	Status     *string
 	WorkflowID *string
 	RunID      *string
+}
+
+// EarkHintsResult is the result type of the eark service hints method.
+type EarkHintsResult struct {
+	// A list of known values of completedDir used by existing watchers.
+	CompletedDirs []string
 }
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

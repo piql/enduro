@@ -77,7 +77,7 @@ func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload
 		DecisionTaskStartToCloseTimeout: time.Second * 10,
 		ExecutionStartToCloseTimeout:    time.Hour,
 	}
-	exec, err := s.cc.StartWorkflow(ctx, opts, earkWorkflowName, input)
+	exec, err := s.cc.StartWorkflow(ctx, opts, earkWorkflowName/**, input*/)
 	if err != nil {
 		switch err := err.(type) {
 		case *cadencesdk_gen_shared.WorkflowExecutionAlreadyStartedError:
@@ -123,14 +123,12 @@ func (s *earkImpl) Status(ctx context.Context) (*goaeark.earkStatusResult, error
 	return result, nil
 }
 
-/**
 func (s *earkImpl) Hints(ctx context.Context) (*goaeark.earkHintsResult, error) {
 	result := &goaeark.earkHintsResult{
 		CompletedDirs: s.completedDirs,
 	}
 	return result, nil
 }
-*/
 
 func (s *earkImpl) InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error {
 	req.ValidationConfig = validation.Config{}

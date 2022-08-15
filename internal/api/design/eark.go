@@ -39,7 +39,6 @@ var _ = Service("eark", func() {
 			Response(StatusOK)
 		})
 	})
-	/**
 	Method("hints", func() {
 		Description("Retrieve form hints")
 		Result(EarkHintsResult)
@@ -48,7 +47,6 @@ var _ = Service("eark", func() {
 			Response(StatusOK)
 		})
 	})
-	*/
 })
 
 var EarkResult = Type("EarkResult", func() {
@@ -65,8 +63,6 @@ var EarkStatusResult = Type("EarkStatusResult", func() {
 	Required("running")
 })
 
-/**
 var EarkHintsResult = Type("EarkHintsResult", func() {
 	Attribute("completed_dirs", ArrayOf(String), "A list of known values of completedDir used by existing watchers.")
 })
-*/

@@ -22,6 +22,7 @@ type Server struct {
 	Mounts []*MountPoint
 	Submit http.Handler
 	Status http.Handler
+	Hints  http.Handler
 	CORS   http.Handler
 }
 
@@ -60,10 +61,13 @@ func New(
 		Mounts: []*MountPoint{
 			{"Submit", "POST", "/eark"},
 			{"Status", "GET", "/eark"},
+			{"Hints", "GET", "/eark/hints"},
 			{"CORS", "OPTIONS", "/eark"},
+			{"CORS", "OPTIONS", "/eark/hints"},
 		},
 		Submit: NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
 		Status: NewStatusHandler(e.Status, mux, decoder, encoder, errhandler, formatter),
+		Hints:  NewHintsHandler(e.Hints, mux, decoder, encoder, errhandler, formatter),
 		CORS:   NewCORSHandler(),
 	}
 }
@@ -75,6 +79,7 @@ func (s *Server) Service() string { return "eark" }
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Submit = m(s.Submit)
 	s.Status = m(s.Status)
+	s.Hints = m(s.Hints)
 	s.CORS = m(s.CORS)
 }
 
@@ -82,6 +87,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountSubmitHandler(mux, h.Submit)
 	MountStatusHandler(mux, h.Status)
+	MountHintsHandler(mux, h.Hints)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -178,11 +184,56 @@ func NewStatusHandler(
 	})
 }
 
+// MountHintsHandler configures the mux to serve the "eark" service "hints"
+// endpoint.
+func MountHintsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/eark/hints", f)
+}
+
+// NewHintsHandler creates a HTTP handler which loads the HTTP request and
+// calls the "eark" service "hints" endpoint.
+func NewHintsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeHintsResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "hints")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
+		var err error
+		res, err := endpoint(ctx, nil)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service eark.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleEarkOrigin(h)
 	mux.Handle("OPTIONS", "/eark", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/eark/hints", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.
