@@ -79,8 +79,8 @@ async collectionDelete(requestParameters: CollectionDeleteRequest): Promise<void
 
 [goa]: https://goa.design/
 [goa-dsl]: https://godoc.org/goa.design/goa/dsl
-[design-pkg]: https://github.com/artefactual-labs/enduro/tree/main/internal/api/design
+[design-pkg]: https://github.com/penwern/enduro/tree/main/internal/api/design
 [clean-arch]: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-[openapi-json]: https://github.com/artefactual-labs/enduro/blob/main/internal/api/gen/http/openapi.json
+[openapi-json]: https://github.com/penwern/enduro/blob/main/internal/api/gen/http/openapi.json
 [gen-api-hugo]: {{< ref "/docs/api" >}}
 [gen-api-spec]: /openapi.json

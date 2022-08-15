@@ -3,14 +3,13 @@
 // pipeline HTTP server types
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package server
 
 import (
-	pipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
-	pipelineviews "github.com/artefactual-labs/enduro/internal/api/gen/pipeline/views"
+	pipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
+	pipelineviews "github.com/penwern/enduro/internal/api/gen/pipeline/views"
 )
 
 // ListResponseBody is the type of the "pipeline" service "list" endpoint HTTP

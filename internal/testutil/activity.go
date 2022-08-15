@@ -8,7 +8,7 @@ import (
 	cadencesdk "go.uber.org/cadence"
 	"gotest.tools/v3/assert"
 
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
 )
 
 // ActivityError describes an error assertion, where its zero value is a

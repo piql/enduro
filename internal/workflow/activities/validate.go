@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 
-	"github.com/artefactual-labs/enduro/internal/validation"
+	"github.com/penwern/enduro/internal/validation"
 )
 
 type ValidateTransferActivity struct{}

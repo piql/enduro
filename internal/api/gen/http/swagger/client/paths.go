@@ -3,7 +3,6 @@
 // HTTP request path constructors for the swagger service.
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package client

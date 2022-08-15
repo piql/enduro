@@ -141,5 +141,5 @@ You can enable it in Visual Studio Code as follows:
 [gopls]: https://github.com/golang/tools/blob/master/gopls/README.md
 [yarn]: https://classic.yarnpkg.com/en/docs/install/
 [make]: https://www.gnu.org/software/make/
-[issue-118]: https://github.com/artefactual-labs/enduro/issues/118
+[issue-118]: https://github.com/penwern/enduro/issues/118
 [docker-non-root]: https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user

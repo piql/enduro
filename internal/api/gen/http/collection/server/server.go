@@ -3,8 +3,7 @@
 // collection HTTP server
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package server
 
@@ -12,8 +11,8 @@ import (
 	"context"
 	"net/http"
 
-	collection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
 	"github.com/gorilla/websocket"
+	collection "github.com/penwern/enduro/internal/api/gen/collection"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"

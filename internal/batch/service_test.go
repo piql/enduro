@@ -12,8 +12,8 @@ import (
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 	"gotest.tools/v3/assert"
 
-	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	goabatch "github.com/penwern/enduro/internal/api/gen/batch"
+	"github.com/penwern/enduro/internal/collection"
 )
 
 var completedDirs = []string{"/tmp/xyz"}

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/artefactual-labs/enduro/internal/amclient"
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/amclient"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 // TransferActivity submits the transfer to Archivematica and returns its ID.

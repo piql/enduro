@@ -8,10 +8,10 @@ import (
 	"github.com/go-logr/logr"
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/workflow/activities"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 func acquirePipeline(ctx cadencesdk_workflow.Context, manager *manager.Manager, pipelineName string, colID uint) (bool, error) {

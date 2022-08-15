@@ -14,12 +14,12 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	collectionfake "github.com/artefactual-labs/enduro/internal/collection/fake"
-	"github.com/artefactual-labs/enduro/internal/nha"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/internal/testutil"
-	watcherfake "github.com/artefactual-labs/enduro/internal/watcher/fake"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	collectionfake "github.com/penwern/enduro/internal/collection/fake"
+	"github.com/penwern/enduro/internal/nha"
+	"github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/testutil"
+	watcherfake "github.com/penwern/enduro/internal/watcher/fake"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 func TestProdActivity(t *testing.T) {

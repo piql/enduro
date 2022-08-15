@@ -11,10 +11,10 @@ import (
 	cadencesdk_gen_shared "go.uber.org/cadence/.gen/go/shared"
 	cadencesdk_client "go.uber.org/cadence/client"
 
-	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/cadence"
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/validation"
+	goabatch "github.com/penwern/enduro/internal/api/gen/batch"
+	"github.com/penwern/enduro/internal/cadence"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/validation"
 )
 
 var ErrBatchStatusUnavailable = errors.New("batch status unavailable")

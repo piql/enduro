@@ -13,8 +13,8 @@ import (
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/fileblob"
 
-	"github.com/artefactual-labs/enduro/internal/filenotify"
-	"github.com/artefactual-labs/enduro/internal/fsutil"
+	"github.com/penwern/enduro/internal/filenotify"
+	"github.com/penwern/enduro/internal/fsutil"
 )
 
 // filesystemWatcher implements a Watcher for watching paths in a local filesystem.

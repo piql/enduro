@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type DeleteOriginalActivity struct {

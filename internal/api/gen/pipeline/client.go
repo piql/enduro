@@ -3,8 +3,7 @@
 // pipeline client
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package pipeline
 
@@ -42,8 +41,8 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res []*EnduroStoredP
 
 // Show calls the "show" endpoint of the "pipeline" service.
 // Show may return the following errors:
-//	- "not_found" (type *PipelineNotFound): Pipeline not found
-//	- error: internal error
+//   - "not_found" (type *PipelineNotFound): Pipeline not found
+//   - error: internal error
 func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPipeline, err error) {
 	var ires interface{}
 	ires, err = c.ShowEndpoint(ctx, p)
@@ -55,8 +54,8 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPip
 
 // Processing calls the "processing" endpoint of the "pipeline" service.
 // Processing may return the following errors:
-//	- "not_found" (type *PipelineNotFound): Pipeline not found
-//	- error: internal error
+//   - "not_found" (type *PipelineNotFound): Pipeline not found
+//   - error: internal error
 func (c *Client) Processing(ctx context.Context, p *ProcessingPayload) (res []string, err error) {
 	var ires interface{}
 	ires, err = c.ProcessingEndpoint(ctx, p)

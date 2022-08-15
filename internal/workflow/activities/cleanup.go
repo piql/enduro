@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 // CleanUpActivity removes the contents that we've created in the TS location.

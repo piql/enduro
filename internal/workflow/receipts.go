@@ -6,9 +6,9 @@ import (
 
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/nha"
-	nha_activities "github.com/artefactual-labs/enduro/internal/nha/activities"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/nha"
+	nha_activities "github.com/penwern/enduro/internal/nha/activities"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type sendReceiptsParams struct {

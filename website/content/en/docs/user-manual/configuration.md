@@ -338,7 +338,7 @@ E.g.: `false`
 
 ## Configuration example
 
-Source: https://github.com/artefactual-labs/enduro/blob/main/enduro.toml.
+Source: https://github.com/penwern/enduro/blob/main/enduro.toml.
 
 {{< config >}}
 

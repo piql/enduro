@@ -10,8 +10,8 @@ import (
 	cadencesdk_activity "go.uber.org/cadence/activity"
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type asyncDecision string

@@ -3,8 +3,7 @@
 // batch HTTP client encoders and decoders
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package client
 
@@ -15,7 +14,7 @@ import (
 	"net/http"
 	"net/url"
 
-	batch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
+	batch "github.com/penwern/enduro/internal/api/gen/batch"
 	goahttp "goa.design/goa/v3/http"
 )
 
@@ -54,9 +53,9 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // submit endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeSubmitResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - error: internal error
 func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {

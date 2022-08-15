@@ -7,8 +7,8 @@ import (
 
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/collection"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
 )
 
 const (

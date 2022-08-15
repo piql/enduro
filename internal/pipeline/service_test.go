@@ -10,7 +10,7 @@ import (
 	"github.com/go-logr/logr"
 	"gotest.tools/v3/assert"
 
-	goapipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
+	goapipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
 )
 
 func TestService(t *testing.T) {

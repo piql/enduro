@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/artefactual-labs/enduro/internal/nha"
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/nha"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 var hariClient = &http.Client{

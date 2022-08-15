@@ -3,8 +3,7 @@
 // enduro HTTP client CLI support package
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package cli
 
@@ -14,17 +13,16 @@ import (
 	"net/http"
 	"os"
 
-	batchc "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client"
-	collectionc "github.com/artefactual-labs/enduro/internal/api/gen/http/collection/client"
-	pipelinec "github.com/artefactual-labs/enduro/internal/api/gen/http/pipeline/client"
+	batchc "github.com/penwern/enduro/internal/api/gen/http/batch/client"
+	collectionc "github.com/penwern/enduro/internal/api/gen/http/collection/client"
+	pipelinec "github.com/penwern/enduro/internal/api/gen/http/pipeline/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
 
 // UsageCommands returns the set of commands and sub-commands using the format
 //
-//    command (subcommand1|subcommand2|...)
-//
+//	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `pipeline (list|show|processing)
 batch (submit|status|hints)
@@ -34,13 +32,13 @@ collection (monitor|list|show|delete|cancel|retry|workflow|download|decide|bulk|
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` pipeline list --name "Porro numquam dolores doloribus."` + "\n" +
+	return os.Args[0] + ` pipeline list --name "Iure nulla."` + "\n" +
 		os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Sit sed laboriosam.",
-      "path": "Provident voluptates iure et.",
-      "pipeline": "Ut dolor est.",
-      "processing_config": "Eum quis nihil soluta ut molestiae et.",
-      "retention_period": "Sit nihil."
+      "completed_dir": "Laboriosam odit.",
+      "path": "Sit nihil.",
+      "pipeline": "Necessitatibus vel aut deleniti quia qui.",
+      "processing_config": "Vel voluptatem.",
+      "retention_period": "Sed perferendis illum illum omnis et officiis."
    }'` + "\n" +
 		os.Args[0] + ` collection monitor` + "\n" +
 		""
@@ -356,7 +354,7 @@ List all known pipelines
     -name STRING: 
 
 Example:
-    %[1]s pipeline list --name "Porro numquam dolores doloribus."
+    %[1]s pipeline list --name "Iure nulla."
 `, os.Args[0])
 }
 
@@ -405,11 +403,11 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Sit sed laboriosam.",
-      "path": "Provident voluptates iure et.",
-      "pipeline": "Ut dolor est.",
-      "processing_config": "Eum quis nihil soluta ut molestiae et.",
-      "retention_period": "Sit nihil."
+      "completed_dir": "Laboriosam odit.",
+      "path": "Sit nihil.",
+      "pipeline": "Necessitatibus vel aut deleniti quia qui.",
+      "processing_config": "Vel voluptatem.",
+      "retention_period": "Sed perferendis illum illum omnis et officiis."
    }'
 `, os.Args[0])
 }
@@ -483,7 +481,7 @@ List all stored collections
     -cursor STRING: 
 
 Example:
-    %[1]s collection list --name "Ut veniam molestiae amet." --original-id "Quod quibusdam ea fugit odio quia autem." --transfer-id "1576BB1F-D21C-05AD-6677-73725A387FA6" --aip-id "7F641448-35F7-7B05-AFB4-8DFCC48CED66" --pipeline-id "D358BA94-28F1-C0F1-EA4E-E3BFBD8A6AE2" --earliest-created-time "1990-10-06T02:21:42Z" --latest-created-time "2015-02-25T11:02:44Z" --status "done" --cursor "Debitis eveniet atque ipsum esse."
+    %[1]s collection list --name "Laudantium eos fugiat iure sit ea." --original-id "Et dolor ullam consequatur dignissimos." --transfer-id "1576BB1F-D21C-05AD-6677-73725A387FA6" --aip-id "7F641448-35F7-7B05-AFB4-8DFCC48CED66" --pipeline-id "D358BA94-28F1-C0F1-EA4E-E3BFBD8A6AE2" --earliest-created-time "1996-05-01T14:23:24Z" --latest-created-time "1987-02-15T23:56:43Z" --status "error" --cursor "Sit et inventore et."
 `, os.Args[0])
 }
 
@@ -494,7 +492,7 @@ Show collection by ID
     -id UINT: Identifier of collection to show
 
 Example:
-    %[1]s collection show --id 9792579105820977192
+    %[1]s collection show --id 6649367811978689086
 `, os.Args[0])
 }
 
@@ -505,7 +503,7 @@ Delete collection by ID
     -id UINT: Identifier of collection to delete
 
 Example:
-    %[1]s collection delete --id 11400018648607317492
+    %[1]s collection delete --id 14411764229641892412
 `, os.Args[0])
 }
 
@@ -516,7 +514,7 @@ Cancel collection processing by ID
     -id UINT: Identifier of collection to remove
 
 Example:
-    %[1]s collection cancel --id 14499263187360059104
+    %[1]s collection cancel --id 12015603943555843617
 `, os.Args[0])
 }
 
@@ -527,7 +525,7 @@ Retry collection processing by ID
     -id UINT: Identifier of collection to retry
 
 Example:
-    %[1]s collection retry --id 14607175962139653509
+    %[1]s collection retry --id 3222974273559150037
 `, os.Args[0])
 }
 
@@ -538,7 +536,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of collection to look up
 
 Example:
-    %[1]s collection workflow --id 11925746244690710531
+    %[1]s collection workflow --id 8684027374223699867
 `, os.Args[0])
 }
 
@@ -549,7 +547,7 @@ Download collection by ID
     -id UINT: Identifier of collection to look up
 
 Example:
-    %[1]s collection download --id 1369363346339569407
+    %[1]s collection download --id 9570527133616476063
 `, os.Args[0])
 }
 
@@ -562,8 +560,8 @@ Make decision for a pending collection by ID
 
 Example:
     %[1]s collection decide --body '{
-      "option": "Optio non a officia sint."
-   }' --id 4433925421161774604
+      "option": "Nihil officiis et enim."
+   }' --id 3923434489665488889
 `, os.Args[0])
 }
 
@@ -576,8 +574,8 @@ Bulk operations (retry, cancel...).
 Example:
     %[1]s collection bulk --body '{
       "operation": "cancel",
-      "size": 11998998615337084245,
-      "status": "done"
+      "size": 15492129042979125718,
+      "status": "in progress"
    }'
 `, os.Args[0])
 }

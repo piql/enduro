@@ -196,11 +196,11 @@ the API via cURL is `curl -Ls 127.0.0.1:9000/collection | jq`:
 
 
 [cadence-deployment]: https://github.com/uber/cadence/tree/master/docker
-[cadence-dbseed]: https://github.com/artefactual-labs/enduro/blob/main/hack/cadence/seed.sh
+[cadence-dbseed]: https://github.com/penwern/enduro/blob/main/hack/cadence/seed.sh
 [cadence-cli]: https://cadenceworkflow.io/docs/08_cli
 [cadence-domain]: https://cadenceworkflow.io/docs/04_glossary#domain
-[development-config]: https://github.com/artefactual-labs/enduro/blob/main/hack/cadence/config.yml
+[development-config]: https://github.com/penwern/enduro/blob/main/hack/cadence/config.yml
 [minio-redis-access]: https://docs.min.io/docs/minio-bucket-notification-guide.html#Redis
 [docker-restart-policy]: https://docs.docker.com/config/containers/start-containers-automatically/#use-a-restart-policy
-[enduro-release-page]: https://github.com/artefactual-labs/enduro/releases
+[enduro-release-page]: https://github.com/penwern/enduro/releases
 [enduro-devenv]: {{< ref "/docs/development/environment" >}}

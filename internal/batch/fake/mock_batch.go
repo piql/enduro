@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	batch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	collection "github.com/artefactual-labs/enduro/internal/collection"
+	batch "github.com/penwern/enduro/internal/api/gen/batch"
+	collection "github.com/penwern/enduro/internal/collection"
 	gomock "github.com/golang/mock/gomock"
 )
 

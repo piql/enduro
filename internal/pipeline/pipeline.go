@@ -16,8 +16,8 @@ import (
 
 	"github.com/go-logr/logr"
 
-	"github.com/artefactual-labs/enduro/internal/amclient"
-	"github.com/artefactual-labs/enduro/internal/pipeline/sync/semaphore"
+	"github.com/penwern/enduro/internal/amclient"
+	"github.com/penwern/enduro/internal/pipeline/sync/semaphore"
 )
 
 type Config struct {

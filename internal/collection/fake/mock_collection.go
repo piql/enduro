@@ -10,8 +10,8 @@ import (
 	reflect "reflect"
 	time "time"
 
-	collection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	collection0 "github.com/artefactual-labs/enduro/internal/collection"
+	collection "github.com/penwern/enduro/internal/api/gen/collection"
+	collection0 "github.com/penwern/enduro/internal/collection"
 	gomock "github.com/golang/mock/gomock"
 	http "goa.design/goa/v3/http"
 )

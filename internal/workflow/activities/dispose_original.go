@@ -4,8 +4,8 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/artefactual-labs/enduro/internal/fsutil"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/fsutil"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type DisposeOriginalActivity struct {

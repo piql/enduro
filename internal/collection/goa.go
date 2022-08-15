@@ -14,8 +14,8 @@ import (
 	cadencesdk_gen_shared "go.uber.org/cadence/.gen/go/shared"
 	cadencesdk_client "go.uber.org/cadence/client"
 
-	goacollection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	"github.com/artefactual-labs/enduro/internal/cadence"
+	goacollection "github.com/penwern/enduro/internal/api/gen/collection"
+	"github.com/penwern/enduro/internal/cadence"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")

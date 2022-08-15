@@ -7,8 +7,8 @@ import (
 	"github.com/go-logr/logr"
 	cadencesdk_activity "go.uber.org/cadence/activity"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type createPackageLocalActivityParams struct {

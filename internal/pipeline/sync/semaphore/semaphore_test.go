@@ -14,7 +14,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/artefactual-labs/enduro/internal/pipeline/sync/semaphore"
+	"github.com/penwern/enduro/internal/pipeline/sync/semaphore"
 )
 
 const maxSleep = 1 * time.Millisecond

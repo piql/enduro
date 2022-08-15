@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	amclient "github.com/artefactual-labs/enduro/internal/amclient"
+	amclient "github.com/penwern/enduro/internal/amclient"
 	gomock "github.com/golang/mock/gomock"
 )
 

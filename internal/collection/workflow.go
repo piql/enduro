@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	cadencesdk_client "go.uber.org/cadence/client"
 
-	"github.com/artefactual-labs/enduro/internal/cadence"
-	"github.com/artefactual-labs/enduro/internal/validation"
+	"github.com/penwern/enduro/internal/cadence"
+	"github.com/penwern/enduro/internal/validation"
 )
 
 const (

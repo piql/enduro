@@ -14,7 +14,7 @@ import (
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 	"go.uber.org/yarpc/yarpcerrors"
 
-	"github.com/artefactual-labs/enduro/internal/api/gen/collection"
+	"github.com/penwern/enduro/internal/api/gen/collection"
 )
 
 const (

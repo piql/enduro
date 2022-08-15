@@ -1,4 +1,4 @@
-module github.com/artefactual-labs/enduro
+module github.com/penwern/enduro
 
 go 1.17
 

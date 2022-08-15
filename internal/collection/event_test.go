@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	goacollection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	goacollection "github.com/penwern/enduro/internal/api/gen/collection"
+	"github.com/penwern/enduro/internal/collection"
 )
 
 func TestEventService(t *testing.T) {

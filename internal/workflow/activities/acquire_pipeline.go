@@ -8,8 +8,8 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	cadencesdk_activity "go.uber.org/cadence/activity"
 
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 // AcquirePipelineActivity acquires a lock in the weighted semaphore associated

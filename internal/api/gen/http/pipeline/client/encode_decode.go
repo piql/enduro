@@ -3,8 +3,7 @@
 // pipeline HTTP client encoders and decoders
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package client
 
@@ -15,8 +14,8 @@ import (
 	"net/http"
 	"net/url"
 
-	pipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
-	pipelineviews "github.com/artefactual-labs/enduro/internal/api/gen/pipeline/views"
+	pipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
+	pipelineviews "github.com/penwern/enduro/internal/api/gen/pipeline/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -128,8 +127,8 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 // show endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
-//	- "not_found" (type *pipeline.PipelineNotFound): http.StatusNotFound
-//	- error: internal error
+//   - "not_found" (type *pipeline.PipelineNotFound): http.StatusNotFound
+//   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -212,8 +211,8 @@ func (c *Client) BuildProcessingRequest(ctx context.Context, v interface{}) (*ht
 // pipeline processing endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeProcessingResponse may return the following errors:
-//	- "not_found" (type *pipeline.PipelineNotFound): http.StatusNotFound
-//	- error: internal error
+//   - "not_found" (type *pipeline.PipelineNotFound): http.StatusNotFound
+//   - error: internal error
 func DecodeProcessingResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {

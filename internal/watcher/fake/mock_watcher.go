@@ -9,7 +9,7 @@ import (
 	io "io"
 	reflect "reflect"
 
-	watcher "github.com/artefactual-labs/enduro/internal/watcher"
+	watcher "github.com/penwern/enduro/internal/watcher"
 	gomock "github.com/golang/mock/gomock"
 )
 

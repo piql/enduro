@@ -12,8 +12,8 @@ import (
 	cadencesdk_client "go.uber.org/cadence/client"
 	goahttp "goa.design/goa/v3/http"
 
-	goacollection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
+	goacollection "github.com/penwern/enduro/internal/api/gen/collection"
+	"github.com/penwern/enduro/internal/pipeline"
 )
 
 type Service interface {

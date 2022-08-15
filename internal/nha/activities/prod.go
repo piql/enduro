@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/artefactual-labs/enduro/internal/nha"
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/nha"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 // Similar to time.RFC3339 with dashes and colons removed.

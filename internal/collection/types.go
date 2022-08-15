@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	goacollection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
+	goacollection "github.com/penwern/enduro/internal/api/gen/collection"
 )
 
 // Collection represents a collection in the collection table.

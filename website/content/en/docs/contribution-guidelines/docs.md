@@ -10,7 +10,7 @@ Our docs are served from: https://enduroproject.netlify.com/. This is kindly
 offered by Netlify. We are not using a custom domain yet.
 
 The docs are built with [Hugo][hugo]. The sources are hosted in the Enduro
-repository: https://github.com/artefactual-labs/enduro/, under the
+repository: https://github.com/penwern/enduro/, under the
 [website][website-sources] directory.
 
 We're using the [Docsy][docsy] theme. Its website has relevant documentation on
@@ -32,4 +32,4 @@ automatically when you make changes to the sources.
 [netlify]: https://www.netlify.com/
 [hugo]: https://gohugo.io/
 [docsy]: https://www.docsy.dev
-[website-sources]: https://github.com/artefactual-labs/enduro/tree/main/website
+[website-sources]: https://github.com/penwern/enduro/tree/main/website

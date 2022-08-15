@@ -12,12 +12,12 @@ import (
 	cadencesdk "go.uber.org/cadence"
 	cadencesdk_testsuite "go.uber.org/cadence/testsuite"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	collectionfake "github.com/artefactual-labs/enduro/internal/collection/fake"
-	nha_activities "github.com/artefactual-labs/enduro/internal/nha/activities"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	watcherfake "github.com/artefactual-labs/enduro/internal/watcher/fake"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/collection"
+	collectionfake "github.com/penwern/enduro/internal/collection/fake"
+	nha_activities "github.com/penwern/enduro/internal/nha/activities"
+	"github.com/penwern/enduro/internal/pipeline"
+	watcherfake "github.com/penwern/enduro/internal/watcher/fake"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type ProcessingWorkflowTestSuite struct {

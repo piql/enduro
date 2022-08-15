@@ -3,17 +3,16 @@
 // collection WebSocket client streaming
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package client
 
 import (
 	"io"
 
-	collection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	collectionviews "github.com/artefactual-labs/enduro/internal/api/gen/collection/views"
 	"github.com/gorilla/websocket"
+	collection "github.com/penwern/enduro/internal/api/gen/collection"
+	collectionviews "github.com/penwern/enduro/internal/api/gen/collection/views"
 	goahttp "goa.design/goa/v3/http"
 )
 

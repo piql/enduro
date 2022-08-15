@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-logr/logr"
 
-	goapipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
+	goapipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
 )
 
 type Service interface {

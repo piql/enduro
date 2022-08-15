@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	goacollection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
+	goacollection "github.com/penwern/enduro/internal/api/gen/collection"
 )
 
 const (

@@ -5,9 +5,9 @@ import (
 
 	"github.com/go-logr/logr"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/internal/watcher"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/watcher"
 )
 
 // Manager carries workflow and activity dependencies.

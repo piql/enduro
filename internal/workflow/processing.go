@@ -15,13 +15,13 @@ import (
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 	"go.uber.org/zap"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
-	"github.com/artefactual-labs/enduro/internal/nha"
-	nha_activities "github.com/artefactual-labs/enduro/internal/nha/activities"
-	"github.com/artefactual-labs/enduro/internal/pipeline"
-	"github.com/artefactual-labs/enduro/internal/validation"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	"github.com/penwern/enduro/internal/collection"
+	"github.com/penwern/enduro/internal/nha"
+	nha_activities "github.com/penwern/enduro/internal/nha/activities"
+	"github.com/penwern/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/validation"
+	"github.com/penwern/enduro/internal/workflow/activities"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 type ProcessingWorkflow struct {

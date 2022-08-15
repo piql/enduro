@@ -6,7 +6,7 @@ import (
 	cadencesdk "go.uber.org/cadence"
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
 )
 
 // Cadence doesn't seem to have a concept of unlimited duration. We use this

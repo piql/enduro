@@ -3,14 +3,13 @@
 // collection HTTP server types
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package server
 
 import (
-	collection "github.com/artefactual-labs/enduro/internal/api/gen/collection"
-	collectionviews "github.com/artefactual-labs/enduro/internal/api/gen/collection/views"
+	collection "github.com/penwern/enduro/internal/api/gen/collection"
+	collectionviews "github.com/penwern/enduro/internal/api/gen/collection/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

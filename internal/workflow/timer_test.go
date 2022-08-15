@@ -12,7 +12,7 @@ import (
 	cadencesdk_testsuite "go.uber.org/cadence/testsuite"
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/workflow"
+	"github.com/penwern/enduro/internal/workflow"
 )
 
 func TestTimer(t *testing.T) {

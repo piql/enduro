@@ -13,7 +13,7 @@
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
               <b-nav-item href="https://enduroproject.netlify.com">Docs</b-nav-item>
-              <b-nav-item href="https://github.com/artefactual-labs/enduro">GitHub</b-nav-item>
+              <b-nav-item href="https://github.com/penwern/enduro">GitHub</b-nav-item>
             </b-navbar-nav>
           </b-collapse>
         </b-navbar>

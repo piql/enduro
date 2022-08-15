@@ -89,4 +89,4 @@ etc), but in practice we're [running them all in the same host at the
 moment][issue-37].
 
 [glossary]: https://cadenceworkflow.io/GLOSSARY.html#glossary
-[issue-37]: https://github.com/artefactual-labs/enduro/issues/37
+[issue-37]: https://github.com/penwern/enduro/issues/37

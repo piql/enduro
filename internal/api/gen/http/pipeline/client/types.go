@@ -3,14 +3,13 @@
 // pipeline HTTP client types
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package client
 
 import (
-	pipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
-	pipelineviews "github.com/artefactual-labs/enduro/internal/api/gen/pipeline/views"
+	pipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
+	pipelineviews "github.com/penwern/enduro/internal/api/gen/pipeline/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

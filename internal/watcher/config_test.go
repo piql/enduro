@@ -7,7 +7,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-labs/enduro/internal/watcher"
+	"github.com/penwern/enduro/internal/watcher"
 )
 
 func TestCompletedDirs(t *testing.T) {

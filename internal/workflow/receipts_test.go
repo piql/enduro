@@ -13,8 +13,8 @@ import (
 	cadencesdk_activity "go.uber.org/cadence/activity"
 	cadencesdk_testsuite "go.uber.org/cadence/testsuite"
 
-	"github.com/artefactual-labs/enduro/internal/nha"
-	nha_activities "github.com/artefactual-labs/enduro/internal/nha/activities"
+	"github.com/penwern/enduro/internal/nha"
+	nha_activities "github.com/penwern/enduro/internal/nha/activities"
 )
 
 // sendReceipts exits immediately after an activity error, ensuring that

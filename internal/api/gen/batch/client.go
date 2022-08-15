@@ -3,8 +3,7 @@
 // batch client
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package batch
 
@@ -32,9 +31,9 @@ func NewClient(submit, status, hints goa.Endpoint) *Client {
 
 // Submit calls the "submit" endpoint of the "batch" service.
 // Submit may return the following errors:
-//	- "not_available" (type *goa.ServiceError)
-//	- "not_valid" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *BatchResult, err error) {
 	var ires interface{}
 	ires, err = c.SubmitEndpoint(ctx, p)

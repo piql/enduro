@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	wferrors "github.com/artefactual-labs/enduro/internal/workflow/errors"
-	"github.com/artefactual-labs/enduro/internal/workflow/manager"
+	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	"github.com/penwern/enduro/internal/workflow/manager"
 )
 
 // DownloadActivity downloads the blob into the pipeline processing directory.

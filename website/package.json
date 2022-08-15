@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/artefactual-labs/enduro.git"
+    "url": "git+https://github.com/penwern/enduro.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/artefactual-labs/enduro/issues"
+    "url": "https://github.com/penwern/enduro/issues"
   },
-  "homepage": "https://github.com/artefactual-labs/enduro",
+  "homepage": "https://github.com/penwern/enduro",
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^10.2.6",

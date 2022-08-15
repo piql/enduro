@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	pipeline "github.com/artefactual-labs/enduro/internal/api/gen/pipeline"
+	pipeline "github.com/penwern/enduro/internal/api/gen/pipeline"
 	gomock "github.com/golang/mock/gomock"
 )
 

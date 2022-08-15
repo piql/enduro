@@ -13,7 +13,7 @@ import (
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
 
-	"github.com/artefactual-labs/enduro/internal/pipeline"
+	"github.com/penwern/enduro/internal/pipeline"
 )
 
 func TestPollIngestActivity(t *testing.T) {

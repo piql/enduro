@@ -3,15 +3,14 @@
 // collection service
 //
 // Command:
-// $ goa-v3.5.5 gengithub.com/penwern/enduro/internal/api/design -o
-// internal/api
+// $ goa gen github.com/penwern/enduro/internal/api/design -o internal/api
 
 package collection
 
 import (
 	"context"
 
-	collectionviews "github.com/artefactual-labs/enduro/internal/api/gen/collection/views"
+	collectionviews "github.com/penwern/enduro/internal/api/gen/collection/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
