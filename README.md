@@ -23,7 +23,7 @@ fault-tolerant workflows suited for preservation.
 ### Additional Installation Instructions
 Enduro 
 To clone this branch from scratch use:
-`git clone --recurse-submodules --branch dev/eark-aip-gen https://github.com/penwern/enduro.git`
+`git clone --recurse-submodules https://github.com/penwern/enduro.git`
 Otherwise the submodules will need to be pulled:
 `git submodule update --init --recursive`
 
@@ -51,6 +51,15 @@ Validation reports for both can be found in their respective directories.
 Example command to run the workflow:
 `./hack/cadence.sh wf start --wid="eark-aip-generator" --wt="eark-aip-generator" --wrp="1" --tl="global" --et="3600"`
 
+### API
+
+We have extended the API service to include the service E-Ark. Currently, this service executes our eark-aip-generator workflow, creating E-Ark compliant AIPS, using SIPs in the sips/ directory and outputting into eark_aips/.
+
+POST /eark
+ - Runs the workflow.
+ 
+GET /eark
+ - Gets the status of the running/last run workflow.
 
 ## Further reading
 
