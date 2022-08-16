@@ -17,12 +17,18 @@ import (
 	"github.com/penwern/enduro/internal/validation"
 )
 
+const (
+	EarkWorkflowName = "eark-aip-generator"
+	EarkWorkflowID   = "eark-aip-generator"
+	EarkActivityName = "eark-activity"
+)
+
 var ErrEarkStatusUnavailable = errors.New("eark status unavailable")
 
 type Service interface {
 	Submit(context.Context/**, *goaeark.SubmitPayload*/) (res *goaeark.EarkResult, err error)
 	Status(context.Context) (res *goaeark.EarkStatusResult, err error)
-	Hints(context.Context) (res *goaeark.EarkHintsResult, err error)
+	//Hints(context.Context) (res *goaeark.EarkHintsResult, err error)
 	InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error
 }
 
@@ -32,16 +38,18 @@ type earkImpl struct {
 
 	// A list of completedDirs reported by the watcher configuration. This is
 	// used to provide the user with possible known values.
-	completedDirs []string
+	// completedDirs []string
 }
 
 var _ Service = (*earkImpl)(nil)
 
-func NewService(logger logr.Logger, cc cadencesdk_client.Client, completedDirs []string) *earkImpl {
+
+// Used in main.go
+func NewService(logger logr.Logger, cc cadencesdk_client.Client/**, completedDirs []string*/) *earkImpl {
 	return &earkImpl{
 		logger:        logger,
 		cc:            cc,
-		completedDirs: completedDirs,
+		/**completedDirs: completedDirs,*/
 	}
 }
 
@@ -123,12 +131,14 @@ func (s *earkImpl) Status(ctx context.Context) (*goaeark.EarkStatusResult, error
 	return result, nil
 }
 
+/**
 func (s *earkImpl) Hints(ctx context.Context) (*goaeark.EarkHintsResult, error) {
 	result := &goaeark.EarkHintsResult{
-		CompletedDirs: s.completedDirs,
+		//CompletedDirs: s.completedDirs,
 	}
 	return result, nil
 }
+*/
 
 func (s *earkImpl) InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error {
 	req.ValidationConfig = validation.Config{}

@@ -150,7 +150,7 @@ func main() {
 	// Set up the eark service.
 	var earksvc eark.Service
 	{
-		earksvc = eark.NewService(logger.WithName("eark"), workflowClient, config.Watcher.CompletedDirs())
+		earksvc = eark.NewService(logger.WithName("eark"), workflowClient/**, config.Watcher.CompletedDirs()*/)
 	}
 
 
