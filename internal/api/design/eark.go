@@ -11,16 +11,6 @@ var _ = Service("eark", func() {
 	})
 	Method("submit", func() {
 		Description("Submit a new eark")
-		/**
-		Payload(func() {
-			Attribute("path", String)
-			Attribute("pipeline", String)
-			Attribute("processing_config", String)
-			Attribute("completed_dir", String)
-			Attribute("retention_period", String)
-			Required("path")
-		})
-		*/
 		Result(EarkResult)
 		Error("not_available")
 		Error("not_valid")
@@ -39,16 +29,6 @@ var _ = Service("eark", func() {
 			Response(StatusOK)
 		})
 	})
-	/**
-	Method("hints", func() {
-		Description("Retrieve form hints")
-		Result(EarkHintsResult)
-		HTTP(func() {
-			GET("/hints")
-			Response(StatusOK)
-		})
-	})
-	*/
 })
 
 var EarkResult = Type("EarkResult", func() {
@@ -64,9 +44,3 @@ var EarkStatusResult = Type("EarkStatusResult", func() {
 	Attribute("run_id", String)
 	Required("running")
 })
-
-/*
-var EarkHintsResult = Type("EarkHintsResult", func() {
-	Attribute("completed_dirs", ArrayOf(String), "A list of known values of completedDir used by existing watchers.")
-})
-*/
