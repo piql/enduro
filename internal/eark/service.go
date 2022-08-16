@@ -13,63 +13,37 @@ import (
 
 	goaeark "github.com/penwern/enduro/internal/api/gen/eark"
 	"github.com/penwern/enduro/internal/cadence"
-	"github.com/penwern/enduro/internal/collection"
-	"github.com/penwern/enduro/internal/validation"
+)
+
+const (
+	EarkWorkflowName = "eark-aip-generator"
+	EarkWorkflowID   = "eark-aip-generator"
+	EarkActivityName = "eark-activity"
 )
 
 var ErrEarkStatusUnavailable = errors.New("eark status unavailable")
 
 type Service interface {
-	Submit(context.Context/**, *goaeark.SubmitPayload*/) (res *goaeark.EarkResult, err error)
+	Submit(context.Context) (res *goaeark.EarkResult, err error)
 	Status(context.Context) (res *goaeark.EarkStatusResult, err error)
-	Hints(context.Context) (res *goaeark.EarkHintsResult, err error)
-	InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error
 }
 
 type earkImpl struct {
 	logger logr.Logger
 	cc     cadencesdk_client.Client
-
-	// A list of completedDirs reported by the watcher configuration. This is
-	// used to provide the user with possible known values.
-	completedDirs []string
 }
 
 var _ Service = (*earkImpl)(nil)
 
-func NewService(logger logr.Logger, cc cadencesdk_client.Client, completedDirs []string) *earkImpl {
+
+func NewService(logger logr.Logger, cc cadencesdk_client.Client) *earkImpl {
 	return &earkImpl{
 		logger:        logger,
 		cc:            cc,
-		completedDirs: completedDirs,
 	}
 }
 
-func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload*/) (*goaeark.EarkResult, error) {
-	/**
-	if payload.Path == "" {
-		return nil, goaeark.MakeNotValid(errors.New("error starting eark - path is empty"))
-	}
-	input := EarkWorkflowInput{
-		Path: payload.Path,
-	}
-	if payload.Pipeline != nil {
-		input.PipelineName = *payload.Pipeline
-	}
-	if payload.ProcessingConfig != nil {
-		input.ProcessingConfig = *payload.ProcessingConfig
-	}
-	if payload.CompletedDir != nil {
-		input.CompletedDir = *payload.CompletedDir
-	}
-	if payload.RetentionPeriod != nil {
-		dur, err := time.ParseDuration(*payload.RetentionPeriod)
-		if err != nil {
-			return nil, goaeark.MakeNotValid(errors.New("error starting eark - retention period format is invalid"))
-		}
-		input.RetentionPeriod = &dur
-	}
-	*/
+func (s *earkImpl) Submit(ctx context.Context) (*goaeark.EarkResult, error) {
 	opts := cadencesdk_client.StartWorkflowOptions{
 		ID:                              EarkWorkflowID,
 		WorkflowIDReusePolicy:           cadencesdk_client.WorkflowIDReusePolicyAllowDuplicate,
@@ -77,7 +51,7 @@ func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload
 		DecisionTaskStartToCloseTimeout: time.Second * 10,
 		ExecutionStartToCloseTimeout:    time.Hour,
 	}
-	exec, err := s.cc.StartWorkflow(ctx, opts, EarkWorkflowName/**, input*/)
+	exec, err := s.cc.StartWorkflow(ctx, opts, EarkWorkflowName)
 	if err != nil {
 		switch err := err.(type) {
 		case *cadencesdk_gen_shared.WorkflowExecutionAlreadyStartedError:
@@ -121,20 +95,4 @@ func (s *earkImpl) Status(ctx context.Context) (*goaeark.EarkStatusResult, error
 	}
 	result.Running = true
 	return result, nil
-}
-
-func (s *earkImpl) Hints(ctx context.Context) (*goaeark.EarkHintsResult, error) {
-	result := &goaeark.EarkHintsResult{
-		CompletedDirs: s.completedDirs,
-	}
-	return result, nil
-}
-
-func (s *earkImpl) InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error {
-	req.ValidationConfig = validation.Config{}
-	err := collection.InitProcessingWorkflow(ctx, s.cc, req)
-	if err != nil {
-		s.logger.Error(err, "Error initializing processing workflow.")
-	}
-	return err
 }

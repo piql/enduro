@@ -16,8 +16,3 @@ func SubmitEarkPath() string {
 func StatusEarkPath() string {
 	return "/eark"
 }
-
-// HintsEarkPath returns the URL path to the eark service hints HTTP endpoint.
-func HintsEarkPath() string {
-	return "/eark/hints"
-}

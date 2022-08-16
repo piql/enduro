@@ -150,7 +150,7 @@ func main() {
 	// Set up the eark service.
 	var earksvc eark.Service
 	{
-		earksvc = eark.NewService(logger.WithName("eark"), workflowClient, config.Watcher.CompletedDirs())
+		earksvc = eark.NewService(logger.WithName("eark"), workflowClient/**, config.Watcher.CompletedDirs()*/)
 	}
 
 
@@ -272,10 +272,6 @@ func main() {
 		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, cadencesdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
-		// No need as below will suffice
-		// w.RegisterWorkflowWithOptions(eark.EarkWorkflow, cadencesdk_workflow.RegisterOptions{Name: eark.EarkWorkflowName})
-		// w.RegisterActivityWithOptions(eark.NewEarkActivity(earksvc).Execute, cadencesdk_activity.RegisterOptions{Name: eark.EarkActivityName})
-		
 		registerEarkAipGeneratorWorkflowActivities(w)
 
 		g.Add(

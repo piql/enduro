@@ -28,13 +28,6 @@ type StatusResponseBody struct {
 	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
-// HintsResponseBody is the type of the "eark" service "hints" endpoint HTTP
-// response body.
-type HintsResponseBody struct {
-	// A list of known values of completedDir used by existing watchers.
-	CompletedDirs []string `form:"completed_dirs,omitempty" json:"completed_dirs,omitempty" xml:"completed_dirs,omitempty"`
-}
-
 // SubmitNotAvailableResponseBody is the type of the "eark" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -119,20 +112,6 @@ func NewStatusEarkStatusResultOK(body *StatusResponseBody) *eark.EarkStatusResul
 		Status:     body.Status,
 		WorkflowID: body.WorkflowID,
 		RunID:      body.RunID,
-	}
-
-	return v
-}
-
-// NewHintsEarkHintsResultOK builds a "eark" service "hints" endpoint result
-// from a HTTP "OK" response.
-func NewHintsEarkHintsResultOK(body *HintsResponseBody) *eark.EarkHintsResult {
-	v := &eark.EarkHintsResult{}
-	if body.CompletedDirs != nil {
-		v.CompletedDirs = make([]string, len(body.CompletedDirs))
-		for i, val := range body.CompletedDirs {
-			v.CompletedDirs[i] = val
-		}
 	}
 
 	return v
