@@ -1,54 +1,55 @@
 package eark
 
 import (
-	"context"
-	"io/ioutil"
+	//"context"
+	//"io/ioutil"
 	"time"
 
 	cadencesdk_workflow "go.uber.org/cadence/workflow"
 
-	"github.com/penwern/enduro/internal/collection"
-	wferrors "github.com/penwern/enduro/internal/workflow/errors"
+	//"github.com/penwern/enduro/internal/collection"
+	//wferrors "github.com/penwern/enduro/internal/workflow/errors"
 )
 
 const (
-	earkWorkflowName = "eark-aip-generator"
-	earkWorkflowID   = "eark-aip-generator"
-	earkActivityName = "eark-activity"
+	EarkWorkflowName = "eark-aip-generator"
+	EarkWorkflowID   = "eark-aip-generator"
+	EarkActivityName = "eark-activity"
 )
 
-type earkProgress struct {
+type EarkProgress struct {
 	CurrentID uint
 }
-
-type earkWorkflowInput struct {
+/**
+type EarkWorkflowInput struct {
 	Path             string
 	PipelineName     string
 	ProcessingConfig string
 	CompletedDir     string
 	RetentionPeriod  *time.Duration
 }
-
-func earkWorkflow(ctx cadencesdk_workflow.Context, params earkWorkflowInput) error {
+*/
+func EarkWorkflow(ctx cadencesdk_workflow.Context/**, params EarkWorkflowInput*/) error {
 	opts := cadencesdk_workflow.WithActivityOptions(ctx, cadencesdk_workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Hour * 24 * 365,
 		StartToCloseTimeout:    time.Hour * 24 * 365,
 		WaitForCancellation:    true,
 	})
-	return cadencesdk_workflow.ExecuteActivity(opts, earkActivityName, params).Get(opts, nil)
+	return cadencesdk_workflow.ExecuteActivity(opts, EarkActivityName/**, params*/).Get(opts, nil)
 }
 
-type earkActivity struct {
+type EarkActivity struct {
 	earksvc Service
 }
 
-func NewearkActivity(earksvc Service) *earkActivity {
-	return &earkActivity{
+func NewEarkActivity(earksvc Service) *EarkActivity {
+	return &EarkActivity{
 		earksvc: earksvc,
 	}
 }
-
-func (a *earkActivity) Execute(ctx context.Context, params earkWorkflowInput) error {
+/**
+func (a *EarkActivity) Execute(ctx context.Context/**, params EarkWorkflowInput) error {
+	/**
 	files, err := ioutil.ReadDir(params.Path)
 	if err != nil {
 		return wferrors.NonRetryableError(err)
@@ -69,5 +70,7 @@ func (a *earkActivity) Execute(ctx context.Context, params earkWorkflowInput) er
 		}
 		_ = a.earksvc.InitProcessingWorkflow(ctx, &req)
 	}
+	
 	return nil
 }
+*/

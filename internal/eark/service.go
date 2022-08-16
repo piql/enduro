@@ -17,12 +17,12 @@ import (
 	"github.com/penwern/enduro/internal/validation"
 )
 
-var ErrearkStatusUnavailable = errors.New("eark status unavailable")
+var ErrEarkStatusUnavailable = errors.New("eark status unavailable")
 
 type Service interface {
-	Submit(context.Context/**, *goaeark.SubmitPayload*/) (res *goaeark.earkResult, err error)
-	Status(context.Context) (res *goaeark.earkStatusResult, err error)
-	Hints(context.Context) (res *goaeark.earkHintsResult, err error)
+	Submit(context.Context/**, *goaeark.SubmitPayload*/) (res *goaeark.EarkResult, err error)
+	Status(context.Context) (res *goaeark.EarkStatusResult, err error)
+	Hints(context.Context) (res *goaeark.EarkHintsResult, err error)
 	InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error
 }
 
@@ -45,12 +45,12 @@ func NewService(logger logr.Logger, cc cadencesdk_client.Client, completedDirs [
 	}
 }
 
-func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload*/) (*goaeark.earkResult, error) {
+func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload*/) (*goaeark.EarkResult, error) {
 	/**
 	if payload.Path == "" {
 		return nil, goaeark.MakeNotValid(errors.New("error starting eark - path is empty"))
 	}
-	input := earkWorkflowInput{
+	input := EarkWorkflowInput{
 		Path: payload.Path,
 	}
 	if payload.Pipeline != nil {
@@ -71,46 +71,46 @@ func (s *earkImpl) Submit(ctx context.Context/**, payload *goaeark.SubmitPayload
 	}
 	*/
 	opts := cadencesdk_client.StartWorkflowOptions{
-		ID:                              earkWorkflowID,
+		ID:                              EarkWorkflowID,
 		WorkflowIDReusePolicy:           cadencesdk_client.WorkflowIDReusePolicyAllowDuplicate,
 		TaskList:                        cadence.GlobalTaskListName,
 		DecisionTaskStartToCloseTimeout: time.Second * 10,
 		ExecutionStartToCloseTimeout:    time.Hour,
 	}
-	exec, err := s.cc.StartWorkflow(ctx, opts, earkWorkflowName/**, input*/)
+	exec, err := s.cc.StartWorkflow(ctx, opts, EarkWorkflowName/**, input*/)
 	if err != nil {
 		switch err := err.(type) {
 		case *cadencesdk_gen_shared.WorkflowExecutionAlreadyStartedError:
 			return nil, goaeark.MakeNotAvailable(
 				fmt.Errorf("error starting eark - operation is already in progress (workflowID=%s runID=%s)",
-					earkWorkflowID, *err.RunId))
+					EarkWorkflowID, *err.RunId))
 		default:
 			s.logger.Info("error starting eark", "err", err)
 			return nil, fmt.Errorf("error starting eark")
 		}
 	}
-	result := &goaeark.earkResult{
+	result := &goaeark.EarkResult{
 		WorkflowID: exec.ID,
 		RunID:      exec.RunID,
 	}
 	return result, nil
 }
 
-func (s *earkImpl) Status(ctx context.Context) (*goaeark.earkStatusResult, error) {
-	result := &goaeark.earkStatusResult{}
-	resp, err := s.cc.DescribeWorkflowExecution(ctx, earkWorkflowID, "")
+func (s *earkImpl) Status(ctx context.Context) (*goaeark.EarkStatusResult, error) {
+	result := &goaeark.EarkStatusResult{}
+	resp, err := s.cc.DescribeWorkflowExecution(ctx, EarkWorkflowID, "")
 	if err != nil {
 		switch err := err.(type) {
 		case *cadencesdk_gen_shared.EntityNotExistsError:
 			return result, nil
 		default:
 			s.logger.Info("error retrieving workflow", "err", err)
-			return nil, ErrearkStatusUnavailable
+			return nil, ErrEarkStatusUnavailable
 		}
 	}
 	if resp.WorkflowExecutionInfo == nil {
 		s.logger.Info("error retrieving workflow execution details")
-		return nil, ErrearkStatusUnavailable
+		return nil, ErrEarkStatusUnavailable
 	}
 	result.WorkflowID = resp.WorkflowExecutionInfo.Execution.WorkflowId
 	result.RunID = resp.WorkflowExecutionInfo.Execution.RunId
@@ -123,8 +123,8 @@ func (s *earkImpl) Status(ctx context.Context) (*goaeark.earkStatusResult, error
 	return result, nil
 }
 
-func (s *earkImpl) Hints(ctx context.Context) (*goaeark.earkHintsResult, error) {
-	result := &goaeark.earkHintsResult{
+func (s *earkImpl) Hints(ctx context.Context) (*goaeark.EarkHintsResult, error) {
+	result := &goaeark.EarkHintsResult{
 		CompletedDirs: s.completedDirs,
 	}
 	return result, nil
