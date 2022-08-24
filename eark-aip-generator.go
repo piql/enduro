@@ -39,6 +39,8 @@ const (
 	ValidateEarkAipPackagesActivityName = "eark-aip:validare-eark-aip"
 	EarkAipValidationReportActivityName = "eark-aip:validation-report"
 	ValidateTaskListName                = "global"
+
+	CommonsIPValidatorName = "commons-ip2-cli-2.2.1.jar"
 )
 
 // Logger
@@ -385,7 +387,7 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageD
 
 	// Run the validator on each package to ensure each SIP is valid
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg.Sip_name)
+		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 		if err != nil {
 			ErrorLogger.Println(err)
@@ -787,7 +789,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []Pack
 
 	// Iterate over every package running the resulting EARK AIP through the commomns IP validator
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+pkg.Aip_name)
+		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "eark_aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {
