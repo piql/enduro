@@ -740,7 +740,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 			}
 
 			var rep_num = fmt.Sprintf("%02d", j+1)
-			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1/data/" + am_trans.Name + ".zip"
+			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation/data/" + am_trans.Name + ".zip"
 
 			// Create the file
 			out, err := os.Create(preservation_file)
@@ -770,8 +770,8 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []Packa
 	for _, pkg := range package_details {
 		for j := range pkg.Am_transfers {
 			var rep_num = fmt.Sprintf("%02d", j+1)
-			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1"
-			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
+			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation"
+			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/create_preservation_mets.py", location)
 			_, err := cmd.Output()
 			// InfoLogger.Println(string(op))
 			if err != nil {
