@@ -20,8 +20,11 @@ fault-tolerant workflows suited for preservation.
 
 
 ## E-Ark AIP Generator Workflow
-### Additional Installation Instructions
-Enduro 
+
+### Original Development Installation Instructions
+https://enduroproject.netlify.app/docs/development/environment/
+
+### Additional Installation Instructions 
 To clone this branch from scratch use:
 `git clone --recurse-submodules https://github.com/penwern/enduro.git`
 Otherwise the submodules will need to be pulled:
