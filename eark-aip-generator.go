@@ -39,6 +39,8 @@ const (
 	ValidateEarkAipPackagesActivityName = "eark-aip:validare-eark-aip"
 	EarkAipValidationReportActivityName = "eark-aip:validation-report"
 	ValidateTaskListName                = "global"
+
+	CommonsIPValidatorName = "commons-ip2-cli-2.2.1.jar"
 )
 
 // Logger
@@ -385,7 +387,7 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageD
 
 	// Run the validator on each package to ensure each SIP is valid
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "sips/"+pkg.Sip_name)
+		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 		if err != nil {
 			ErrorLogger.Println(err)
@@ -738,7 +740,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 			}
 
 			var rep_num = fmt.Sprintf("%02d", j+1)
-			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1/data/" + am_trans.Name + ".zip"
+			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation/data/" + am_trans.Name + ".zip"
 
 			// Create the file
 			out, err := os.Create(preservation_file)
@@ -768,8 +770,8 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []Packa
 	for _, pkg := range package_details {
 		for j := range pkg.Am_transfers {
 			var rep_num = fmt.Sprintf("%02d", j+1)
-			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + ".1"
-			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/update_rep_mets.py", location)
+			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation"
+			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/create_preservation_mets.py", location)
 			_, err := cmd.Output()
 			// InfoLogger.Println(string(op))
 			if err != nil {
@@ -787,7 +789,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []Pack
 
 	// Iterate over every package running the resulting EARK AIP through the commomns IP validator
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/commons-ip2-cli-2.0.1.jar", "validate", "-i", "eark_aips/"+pkg.Aip_name)
+		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "eark_aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {

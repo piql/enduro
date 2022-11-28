@@ -166,3 +166,11 @@ gen-mock:
 	$(MOCKGEN) -destination=./internal/amclient/fake/mock_v2_task.go -package=fakegithub.com/penwern/enduro/internal/amclient TaskService
 
 .PHONY: *
+ 
+# Penwern Addition. Removes generated files and folders from previously run eark-aip-generator workflows
+# Doesn't remove sips from sip directory
+clean-eark:
+	rm -f sips/*.json
+	rm -rf am_transfers/
+	rm -rf eark_aips/
+	rm -rf logs/
