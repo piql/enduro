@@ -27,10 +27,10 @@ import (
 
 	"github.com/penwern/enduro/internal/api"
 	"github.com/penwern/enduro/internal/batch"
-	"github.com/penwern/enduro/internal/eark"
 	"github.com/penwern/enduro/internal/cadence"
 	"github.com/penwern/enduro/internal/collection"
 	"github.com/penwern/enduro/internal/db"
+	"github.com/penwern/enduro/internal/eark"
 	nha_activities "github.com/penwern/enduro/internal/nha/activities"
 	"github.com/penwern/enduro/internal/pipeline"
 	"github.com/penwern/enduro/internal/validation"
@@ -146,13 +146,11 @@ func main() {
 		batchsvc = batch.NewService(logger.WithName("batch"), workflowClient, config.Watcher.CompletedDirs())
 	}
 
-	
 	// Set up the eark service.
 	var earksvc eark.Service
 	{
-		earksvc = eark.NewService(logger.WithName("eark"), workflowClient/**, config.Watcher.CompletedDirs()*/)
+		earksvc = eark.NewService(logger.WithName("eark"), workflowClient /**, config.Watcher.CompletedDirs()*/)
 	}
-
 
 	// Set up the collection service.
 	var colsvc collection.Service
@@ -273,6 +271,7 @@ func main() {
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, cadencesdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
 		registerEarkAipGeneratorWorkflowActivities(w)
+		registerEarkDipGeneratorWorkflowActivities(w)
 
 		g.Add(
 			func() error {
