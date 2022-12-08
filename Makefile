@@ -175,4 +175,4 @@ clean-eark:
 	rm -rf eark_aips/
 	rm -rf logs/
 	rm -f aips/*.json
-	rm -rf dips?
+	rm -rf dips/
