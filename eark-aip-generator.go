@@ -36,9 +36,9 @@ const (
 	WaitForAMProcessActivityName        = "am-aip:wait-for-am-process"
 	DownloadAndPlaceAMAIPActivityName   = "am-aip:download-and-place-am-aip"
 	UpdatePreservationMetsActivityName  = "eark-aip:update-preservation-mets"
-	ValidateEarkAipPackagesActivityName = "eark-aip:validare-eark-aip"
+	ValidateEarkAipPackagesActivityName = "eark-aip:validate-eark-aip"
 	EarkAipValidationReportActivityName = "eark-aip:validation-report"
-	ValidateTaskListName                = "global"
+	AipGeneratorTaskListName            = "global"
 
 	CommonsIPValidatorName = "commons-ip2-cli-2.2.1.jar"
 )
@@ -112,13 +112,13 @@ func registerEarkAipGeneratorWorkflowActivities(w worker.Worker) {
 
 func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
-	var package_details []PackageDetails
+	var package_details []AIPPackageDetails
 	var batch_submission_data BatchData
 
 	// Logger
 	// If the file doesn't exist, create it or append to the file
-	if _, err := os.Stat("logs/logs.txt"); err == nil {
-		e := os.Remove("logs/logs.txt")
+	if _, err := os.Stat("logs/eark-aip-gen.log"); err == nil {
+		e := os.Remove("logs/eark-aip-gen.log")
 		if e != nil {
 			ErrorLogger.Println(err)
 			return err
@@ -129,7 +129,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 			return err
 		}
 	}
-	file, err := os.OpenFile("logs/logs.txt", os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile("logs/eark-aip-gen.log", os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
 	}
@@ -140,7 +140,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// List SIP Packages
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -157,7 +157,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	//Validate SIP Packages
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -174,7 +174,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// SIP Validation Report
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -191,7 +191,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Prepare AM Transfer
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -209,7 +209,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -226,7 +226,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Wait for batch process to complete
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -243,7 +243,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Collect processing data
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -260,7 +260,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Generate EARK AIP
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -277,7 +277,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Wait for AM process
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute * 15 * time.Duration(len(package_details)),
 		})
@@ -291,10 +291,10 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 		}
 	}
 
-	// Download and place am aip
+	// Download and place AM AIP
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -311,7 +311,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// Update preservation mets
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -325,10 +325,10 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 		}
 	}
 
-	// Validate eark aip
+	// Validate EARK AIP
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -345,7 +345,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	// EARK AIP Validation Report
 	{
 		activityOptions := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-			TaskList:               ValidateTaskListName,
+			TaskList:               AipGeneratorTaskListName,
 			ScheduleToStartTimeout: time.Second * 10,
 			StartToCloseTimeout:    time.Minute,
 		})
@@ -362,11 +362,11 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	return nil
 }
 
-func ListSipPackagesActivity(ctx context.Context) ([]PackageDetails, error) {
+func ListSipPackagesActivity(ctx context.Context) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: List Packages")
+	InfoLogger.Println("Starting: List SIP Packages")
 
-	var package_details []PackageDetails
+	var package_details []AIPPackageDetails
 
 	files, err := ioutil.ReadDir("./sips")
 	if err != nil {
@@ -375,19 +375,19 @@ func ListSipPackagesActivity(ctx context.Context) ([]PackageDetails, error) {
 	}
 	for _, file := range files {
 		if file.IsDir() {
-			package_details = append(package_details, PackageDetails{Sip_name: file.Name()})
+			package_details = append(package_details, AIPPackageDetails{Sip_name: file.Name()})
 		}
 	}
 	return package_details, nil
 }
 
-func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+func ValidateSipPackagesActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: List Packages")
+	InfoLogger.Println("Starting: Validate SIP Packages")
 
 	// Run the validator on each package to ensure each SIP is valid
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "sips/"+pkg.Sip_name)
+		cmd := exec.Command("java", "-jar", "scripts/"+CommonsIPValidatorName, "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 		if err != nil {
 			ErrorLogger.Println(err)
@@ -413,9 +413,9 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []PackageD
 	return package_details, nil
 }
 
-func SipValidationReportActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+func SipValidationReportActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: SIP Validation")
+	InfoLogger.Println("Starting: SIP Validation Report")
 
 	// Remove invalid sip packages from the list
 	for i, pkg := range package_details {
@@ -433,7 +433,7 @@ func SipValidationReportActivity(ctx context.Context, package_details []PackageD
 	return package_details, nil
 }
 
-func PrepareAMTransferActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+func PrepareAMTransferActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
 	InfoLogger.Println("Starting: Prepare AM Transfers")
 
@@ -596,7 +596,7 @@ func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 	return nil
 }
 
-func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, package_details []PackageDetails) ([]PackageDetails, error) {
+func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
 	InfoLogger.Println("Starting: Collect Processing Data")
 
@@ -652,7 +652,7 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 	return package_details, nil
 }
 
-func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+func GenerateEarkAipActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
 	InfoLogger.Println("Starting: Generate EARK AIP")
 
@@ -673,7 +673,7 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []PackageDetai
 	return package_details, nil
 }
 
-func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDetails) error {
+func WaitForAMProcessActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
 	InfoLogger.Println("Starting: Wait For Am Process")
 
@@ -720,7 +720,7 @@ func WaitForAMProcessActivity(ctx context.Context, package_details []PackageDeta
 	return nil
 }
 
-func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []PackageDetails) error {
+func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
 	InfoLogger.Println("Starting: Download and Place AM AIP")
 
@@ -761,7 +761,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []Packag
 	return nil
 }
 
-func UpdatePreservationMetsActivity(ctx context.Context, package_details []PackageDetails) error {
+func UpdatePreservationMetsActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
 	InfoLogger.Println("Starting: Update Preservation METS")
 
@@ -783,13 +783,13 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []Packa
 	return nil
 }
 
-func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []PackageDetails) ([]PackageDetails, error) {
+func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
 	InfoLogger.Println("Starting: Validate EARK AIP")
 
 	// Iterate over every package running the resulting EARK AIP through the commomns IP validator
 	for i, pkg := range package_details {
-		cmd := exec.Command("java", "-jar", "scripts/" + CommonsIPValidatorName, "validate", "-i", "eark_aips/"+pkg.Aip_name)
+		cmd := exec.Command("java", "-jar", "scripts/"+CommonsIPValidatorName, "validate", "-i", "eark_aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 
 		if err != nil {
@@ -814,7 +814,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []Pack
 	return package_details, nil
 }
 
-func EarkAipValidationReportActivity(ctx context.Context, package_details []PackageDetails) error {
+func EarkAipValidationReportActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
 	InfoLogger.Println("Starting: EARK AIP Validation Report")
 	mapping := []SIPAIPMapping{}
@@ -858,7 +858,7 @@ func RemoveContents(dir string) error {
 }
 
 // This function efficiently searches through the files[] appending each am_transfer file to its respective SIP (package_details.Am_transfers[])
-func transfer_search(package_details []PackageDetails, files []fs.FileInfo) ([]PackageDetails, error) {
+func transfer_search(package_details []AIPPackageDetails, files []fs.FileInfo) ([]AIPPackageDetails, error) {
 	var file_i = 0
 	for i, pkg := range package_details {
 		if strings.HasPrefix(files[file_i].Name(), pkg.Sip_name) {
@@ -873,7 +873,7 @@ func transfer_search(package_details []PackageDetails, files []fs.FileInfo) ([]P
 }
 
 // Used throughout the process to track details pertaining to each package
-type PackageDetails struct {
+type AIPPackageDetails struct {
 
 	// Name of the original SIP
 	Sip_name string
