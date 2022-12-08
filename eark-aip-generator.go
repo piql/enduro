@@ -45,9 +45,9 @@ const (
 
 // Logger
 var (
-	WarningLogger *log.Logger
-	InfoLogger    *log.Logger
-	ErrorLogger   *log.Logger
+	AIPWarningLogger *log.Logger
+	AIPInfoLogger    *log.Logger
+	AIPErrorLogger   *log.Logger
 )
 
 func registerEarkAipGeneratorWorkflowActivities(w worker.Worker) {
@@ -120,7 +120,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	if _, err := os.Stat("logs/eark-aip-gen.log"); err == nil {
 		e := os.Remove("logs/eark-aip-gen.log")
 		if e != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	} else {
@@ -133,9 +133,9 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 	if err != nil {
 		return err
 	}
-	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	ErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	AIPInfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	AIPWarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	AIPErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// List SIP Packages
 	{
@@ -149,7 +149,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -166,7 +166,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -183,7 +183,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -200,7 +200,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -218,7 +218,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &batch_submission_data)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -235,7 +235,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, nil)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -252,7 +252,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -269,7 +269,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -286,7 +286,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -303,7 +303,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -320,7 +320,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, nil)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -337,7 +337,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -354,7 +354,7 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, nil)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -364,13 +364,13 @@ func EarkAipGeneratorWorkflow(ctx workflow.Context) error {
 
 func ListSipPackagesActivity(ctx context.Context) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: List SIP Packages")
+	AIPInfoLogger.Println("Starting: List SIP Packages")
 
 	var package_details []AIPPackageDetails
 
 	files, err := ioutil.ReadDir("./sips")
 	if err != nil {
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return nil, err
 	}
 	for _, file := range files {
@@ -383,14 +383,14 @@ func ListSipPackagesActivity(ctx context.Context) ([]AIPPackageDetails, error) {
 
 func ValidateSipPackagesActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Validate SIP Packages")
+	AIPInfoLogger.Println("Starting: Validate SIP Packages")
 
 	// Run the validator on each package to ensure each SIP is valid
 	for i, pkg := range package_details {
 		cmd := exec.Command("java", "-jar", "scripts/"+CommonsIPValidatorName, "validate", "-i", "sips/"+pkg.Sip_name)
 		stdout, err := cmd.Output()
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 
@@ -399,7 +399,7 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []AIPPacka
 
 		jsonFile, err := os.Open(path)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 		defer jsonFile.Close()
@@ -415,7 +415,7 @@ func ValidateSipPackagesActivity(ctx context.Context, package_details []AIPPacka
 
 func SipValidationReportActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: SIP Validation Report")
+	AIPInfoLogger.Println("Starting: SIP Validation Report")
 
 	// Remove invalid sip packages from the list
 	for i, pkg := range package_details {
@@ -427,7 +427,7 @@ func SipValidationReportActivity(ctx context.Context, package_details []AIPPacka
 	// If no packages are valid we terminate the process
 	if len(package_details) == 0 {
 		err := errors.New("No valid sip packages")
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return nil, err
 	}
 	return package_details, nil
@@ -435,14 +435,14 @@ func SipValidationReportActivity(ctx context.Context, package_details []AIPPacka
 
 func PrepareAMTransferActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Prepare AM Transfers")
+	AIPInfoLogger.Println("Starting: Prepare AM Transfers")
 
 	// Delete existing (previous) content from 'am_transfers' directory
 	// os.IsExist is blind to empty files
 	if _, err := os.Stat("am_transfers"); !os.IsNotExist(err) {
 		err := RemoveContents("am_transfers")
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 	}
@@ -450,26 +450,26 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []AIPPackage
 	// Create Archivematica transfers for each sip
 	// Creates a transfer directory for each representation in the SIP
 	for _, pkg := range package_details {
-		InfoLogger.Println("Package:", pkg.Sip_name)
+		AIPInfoLogger.Println("Package:", pkg.Sip_name)
 		cmd := exec.Command("python3.9", "scripts/sip_to_am_transfer/sip_to_am_transfer.py", "-i", "sips/"+pkg.Sip_name, "-o", "am_transfers")
 		op, err := cmd.Output()
-		InfoLogger.Println("SipToAmTransfer Output:\n", string(op))
+		AIPInfoLogger.Println("SipToAmTransfer Output:\n", string(op))
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 	}
 	// Append transfer file names to package details am_transfers[]
 	files, err := ioutil.ReadDir("am_transfers")
 	if err != nil {
-		ErrorLogger.Println((err))
+		AIPErrorLogger.Println((err))
 		return nil, err
 	}
 	// Update package details with newly generated am transfer files useing efficient search function
 	// package_details, err = transfer_search(package_details, 0, files, 0)
 	package_details, err = transfer_search(package_details, files)
 	if err != nil {
-		ErrorLogger.Println((err))
+		AIPErrorLogger.Println((err))
 		return nil, err
 	}
 	return package_details, nil
@@ -477,7 +477,7 @@ func PrepareAMTransferActivity(ctx context.Context, package_details []AIPPackage
 
 func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
 
-	InfoLogger.Println("Starting: Execute AM Batch Transfer")
+	AIPInfoLogger.Println("Starting: Execute AM Batch Transfer")
 
 	var batch_submission_output map[string]interface{}
 	var batch_submission_data BatchData
@@ -493,7 +493,7 @@ func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
 	})
 	responseBody := bytes.NewBuffer(postBody)
 	submission_time := time.Now().Format("2006-01-02T15:04:05Z")
-	WarningLogger.Println("API call made at:", submission_time)
+	AIPWarningLogger.Println("API call made at:", submission_time)
 	resp, err := http.Post("http://localhost:9000/batch", "application/json", responseBody)
 	if err != nil {
 		return batch_submission_data, err
@@ -521,7 +521,7 @@ func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
 			fault_str = "Conflict Response"
 		}
 		err = errors.New("Error: batch submission failed: " + fault_str)
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return batch_submission_data, err
 	} else {
 		if workflow_id, ok := batch_submission_output["workflow_id"]; ok {
@@ -531,19 +531,19 @@ func ExecuteAMTransferActivity(ctx context.Context) (BatchData, error) {
 				return batch_submission_data, nil
 			} else {
 				err = errors.New("Error: batch submission failed")
-				ErrorLogger.Println(err)
+				AIPErrorLogger.Println(err)
 				return batch_submission_data, err
 			}
 		}
 	}
 	err = errors.New("Error: batch submission failed: Unknown")
-	ErrorLogger.Println(err)
+	AIPErrorLogger.Println(err)
 	return batch_submission_data, err
 }
 
 func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 
-	InfoLogger.Println("Starting: Wait For Batch Completion")
+	AIPInfoLogger.Println("Starting: Wait For Batch Completion")
 
 	var batch_status map[string]interface{}
 
@@ -551,18 +551,18 @@ func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 	for ok := true; ok; ok = true {
 		resp, err := http.Get("http://localhost:9000/batch")
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 		err = json.Unmarshal(body, &batch_status)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 
@@ -574,22 +574,22 @@ func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 			} else if running == false {
 				if status, ok := batch_status["status"]; ok {
 					if status == "completed" {
-						InfoLogger.Println("Batch workflow complete.")
+						AIPInfoLogger.Println("Batch workflow complete.")
 						return nil
 					} else {
 						err = errors.New("Error: batch workflow not completed")
-						ErrorLogger.Println(err)
+						AIPErrorLogger.Println(err)
 						return err
 					}
 				}
 			} else {
 				err = errors.New("Error reading batch status")
-				ErrorLogger.Println(err)
+				AIPErrorLogger.Println(err)
 				return err
 			}
 		} else {
 			err = errors.New("Error reading batch status")
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -598,25 +598,25 @@ func WaitForBatchActivity(ctx context.Context, batch_data BatchData) error {
 
 func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Collect Processing Data")
+	AIPInfoLogger.Println("Starting: Collect Processing Data")
 
 	var collection_output CollectionData
 	submission_time := batch_data.Time
 
 	resp, err := http.Get("http://localhost:9000/collection?earliest_created_time=" + submission_time)
 	if err != nil {
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return nil, err
 	}
 	err = json.Unmarshal(body, &collection_output)
 	if err != nil {
-		ErrorLogger.Println(err)
+		AIPErrorLogger.Println(err)
 		return nil, err
 	}
 
@@ -638,14 +638,14 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 					col_i = col_i + 1
 				} else {
 					err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + am_trans.Name + ": " + collection_items[col_i].Name)
-					ErrorLogger.Println(package_details, collection_output)
-					ErrorLogger.Println(err)
+					AIPErrorLogger.Println(package_details, collection_output)
+					AIPErrorLogger.Println(err)
 					return nil, err
 				}
 			}
 		} else {
 			err = errors.New("ERROR: Failure in CollectProcessingDataActivity. " + pkg.Sip_name + ": " + collection_items[col_i].Name)
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 	}
@@ -654,7 +654,7 @@ func CollectProcessingDataActivity(ctx context.Context, batch_data BatchData, pa
 
 func GenerateEarkAipActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Generate EARK AIP")
+	AIPInfoLogger.Println("Starting: Generate EARK AIP")
 
 	// For each SIP package generate a new EARK AIP from it's contents.
 	// The script should output the name of the resulting AIP which we set in package_details
@@ -663,10 +663,10 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []AIPPackageDe
 		op, err := cmd.Output()
 		split_output := strings.Split(string(op), "\n")
 		aip_name := split_output[len(split_output)-2]
-		InfoLogger.Println("New AIP Name:", aip_name)
+		AIPInfoLogger.Println("New AIP Name:", aip_name)
 		package_details[i].Aip_name = aip_name
 		if err != nil {
-			ErrorLogger.Println(err.Error())
+			AIPErrorLogger.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -675,7 +675,7 @@ func GenerateEarkAipActivity(ctx context.Context, package_details []AIPPackageDe
 
 func WaitForAMProcessActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
-	InfoLogger.Println("Starting: Wait For Am Process")
+	AIPInfoLogger.Println("Starting: Wait For Am Process")
 
 	// For each am_transfer we check the status of its process through Archivematica.
 	// If the process is still running we wait for 30 seconds before checking again.
@@ -688,31 +688,31 @@ func WaitForAMProcessActivity(ctx context.Context, package_details []AIPPackageD
 				resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id))
 
 				if err != nil {
-					ErrorLogger.Println(err)
+					AIPErrorLogger.Println(err)
 					return err
 				}
 				defer resp.Body.Close()
 				body, err := ioutil.ReadAll(resp.Body)
 				if err != nil {
-					ErrorLogger.Println(err)
+					AIPErrorLogger.Println(err)
 					return err
 				}
 				err = json.Unmarshal(body, &collection_item)
 				if err != nil {
-					ErrorLogger.Println(err)
+					AIPErrorLogger.Println(err)
 					return err
 				}
-				// InfoLogger.Printf("Collection Item: %+v", collection_item)
+				// AIPInfoLogger.Printf("Collection Item: %+v", collection_item)
 				if collection_item.Status == "error" {
 					err = errors.New("Error: AM Process Failed: " + collection_item.Workflow_id)
-					ErrorLogger.Println(err)
+					AIPErrorLogger.Println(err)
 					return err
 				}
 				completed_process = collection_item.Status == "done"
 				if !completed_process {
 					time.Sleep(time.Second * 30)
 				} else {
-					InfoLogger.Println(am_trans.Name + " AM process completed.")
+					AIPInfoLogger.Println(am_trans.Name + " AM process completed.")
 				}
 			}
 		}
@@ -722,7 +722,7 @@ func WaitForAMProcessActivity(ctx context.Context, package_details []AIPPackageD
 
 func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
-	InfoLogger.Println("Starting: Download and Place AM AIP")
+	AIPInfoLogger.Println("Starting: Download and Place AM AIP")
 
 	// Iterate through all packages and their am_transfers to download the completed AIPs from Archivematica.
 	// Place the downloaded AIPs in their respective directory within the EARK AIP representations folder
@@ -730,7 +730,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPac
 		for j, am_trans := range pkg.Am_transfers {
 			resp, err := http.Get(fmt.Sprint("http://localhost:9000/collection/", am_trans.Id, "/download"))
 			if err != nil {
-				ErrorLogger.Println(err)
+				AIPErrorLogger.Println(err)
 				return err
 			}
 			defer resp.Body.Close()
@@ -745,7 +745,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPac
 			// Create the file
 			out, err := os.Create(preservation_file)
 			if err != nil {
-				ErrorLogger.Println(err)
+				AIPErrorLogger.Println(err)
 				return err
 			}
 			defer out.Close()
@@ -753,7 +753,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPac
 			// Write the body to file
 			_, err = io.Copy(out, resp.Body)
 			if err != nil {
-				ErrorLogger.Println(err)
+				AIPErrorLogger.Println(err)
 				return err
 			}
 		}
@@ -763,7 +763,7 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPac
 
 func UpdatePreservationMetsActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
-	InfoLogger.Println("Starting: Update Preservation METS")
+	AIPInfoLogger.Println("Starting: Update Preservation METS")
 
 	// For each preservation rep we need to update the preservation METS as well as the root mets.
 	// This script does both.
@@ -773,9 +773,9 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []AIPPa
 			location := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation"
 			cmd := exec.Command("python3.9", "scripts/sip_to_eark_aip/create_preservation_mets.py", location)
 			_, err := cmd.Output()
-			// InfoLogger.Println(string(op))
+			// AIPInfoLogger.Println(string(op))
 			if err != nil {
-				ErrorLogger.Println(err.Error())
+				AIPErrorLogger.Println(err.Error())
 				return err
 			}
 		}
@@ -785,7 +785,7 @@ func UpdatePreservationMetsActivity(ctx context.Context, package_details []AIPPa
 
 func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []AIPPackageDetails) ([]AIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Validate EARK AIP")
+	AIPInfoLogger.Println("Starting: Validate EARK AIP")
 
 	// Iterate over every package running the resulting EARK AIP through the commomns IP validator
 	for i, pkg := range package_details {
@@ -793,7 +793,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []AIPP
 		stdout, err := cmd.Output()
 
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 
@@ -801,7 +801,7 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []AIPP
 
 		jsonFile, err := os.Open(path)
 		if err != nil {
-			ErrorLogger.Println(err)
+			AIPErrorLogger.Println(err)
 			return nil, err
 		}
 		defer jsonFile.Close()
@@ -816,13 +816,13 @@ func ValidateEarkAipPackagesActivity(ctx context.Context, package_details []AIPP
 
 func EarkAipValidationReportActivity(ctx context.Context, package_details []AIPPackageDetails) error {
 
-	InfoLogger.Println("Starting: EARK AIP Validation Report")
+	AIPInfoLogger.Println("Starting: EARK AIP Validation Report")
 	mapping := []SIPAIPMapping{}
 
 	// Display in the logs every EARK AIP that fails verification
 	for _, pkg := range package_details {
 		if !pkg.Aip_valid {
-			WarningLogger.Println("AIP Package:", pkg.Sip_name, pkg.Aip_name, "failed validation")
+			AIPWarningLogger.Println("AIP Package:", pkg.Sip_name, pkg.Aip_name, "failed validation")
 		}
 		mapping = append(mapping, SIPAIPMapping{pkg.Sip_name, pkg.Aip_name})
 	}
