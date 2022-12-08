@@ -30,11 +30,11 @@ const (
 )
 
 // Logger
-//var (
-//	WarningLogger *log.Logger
-//	InfoLogger    *log.Logger
-//	ErrorLogger   *log.Logger
-//)
+var (
+	DIPWarningLogger *log.Logger
+	DIPInfoLogger    *log.Logger
+	DIPErrorLogger   *log.Logger
+)
 
 func registerEarkDipGeneratorWorkflowActivities(w worker.Worker) {
 	//Register workflow
@@ -77,7 +77,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 	if _, err := os.Stat("logs/eark-dip-gen.log"); err == nil {
 		e := os.Remove("logs/eark-dip-gen.log")
 		if e != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	} else {
@@ -90,9 +90,9 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 	if err != nil {
 		return err
 	}
-	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	ErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	DIPInfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	DIPWarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	DIPErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// List AIP Packages
 	{
@@ -106,7 +106,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -123,7 +123,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -140,7 +140,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -157,7 +157,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -174,7 +174,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, &package_details)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -191,7 +191,7 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 		err := future.Get(ctx, nil)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return err
 		}
 	}
@@ -201,18 +201,18 @@ func EarkDipGeneratorWorkflow(ctx workflow.Context) error {
 
 func ListAipPackagesActivity(ctx context.Context) ([]DIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: List AIP Packages")
+	DIPInfoLogger.Println("Starting: List AIP Packages")
 
 	var package_details []DIPPackageDetails
 
 	files, err := ioutil.ReadDir("./aips")
 	if err != nil {
-		ErrorLogger.Println(err)
+		DIPErrorLogger.Println(err)
 		return nil, err
 	}
 	for _, file := range files {
 		if file.IsDir() {
-			package_details = append(package_details, DIPPackageDetails{Dip_name: file.Name()})
+			package_details = append(package_details, DIPPackageDetails{Aip_name: file.Name()})
 		}
 	}
 	return package_details, nil
@@ -220,14 +220,14 @@ func ListAipPackagesActivity(ctx context.Context) ([]DIPPackageDetails, error) {
 
 func ValidateAipPackagesActivity(ctx context.Context, package_details []DIPPackageDetails) ([]DIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Validate DIP Packages")
+	DIPInfoLogger.Println("Starting: Validate DIP Packages")
 
 	// Run the validator on each package to ensure each SIP is valid
 	for i, pkg := range package_details {
 		cmd := exec.Command("java", "-jar", "scripts/"+CommonsIPValidatorName, "validate", "-i", "aips/"+pkg.Aip_name)
 		stdout, err := cmd.Output()
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return nil, err
 		}
 
@@ -236,7 +236,7 @@ func ValidateAipPackagesActivity(ctx context.Context, package_details []DIPPacka
 
 		jsonFile, err := os.Open(path)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return nil, err
 		}
 		defer jsonFile.Close()
@@ -252,19 +252,21 @@ func ValidateAipPackagesActivity(ctx context.Context, package_details []DIPPacka
 
 func AipValidationReportActivity(ctx context.Context, package_details []DIPPackageDetails) ([]DIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: AIP Validation Report")
+	DIPInfoLogger.Println("Starting: AIP Validation Report")
 
 	// Remove invalid sip packages from the list
+	/** REMOVE COMMENT
 	for i, pkg := range package_details {
 		if !pkg.Aip_valid {
 			package_details = append(package_details[:i], package_details[i+1:]...)
 		}
 	}
+	**/
 
 	// If no packages are valid we terminate the process
 	if len(package_details) == 0 {
 		err := errors.New("No valid AIP packages")
-		ErrorLogger.Println(err)
+		DIPErrorLogger.Println(err)
 		return nil, err
 	}
 	return package_details, nil
@@ -272,19 +274,20 @@ func AipValidationReportActivity(ctx context.Context, package_details []DIPPacka
 
 func GenerateEarkDipActivity(ctx context.Context, package_details []DIPPackageDetails) ([]DIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Generate EARK DIP")
+	DIPInfoLogger.Println("Starting: Generate EARK DIP")
 
 	// For each SIP package generate a new EARK AIP from it's contents.
 	// The script should output the name of the resulting AIP which we set in package_details
 	for i, pkg := range package_details {
-		cmd := exec.Command("python3.9", "scripts/eark_aip_to_dip.py", "-i", "aips/"+pkg.Aip_name, "-o", "dips")
+		cmd := exec.Command("python3.9", "scripts/eark_aip_to_dip/aip_to_dip.py", "-i", "aips/"+pkg.Aip_name, "-o", "dips")
 		op, err := cmd.Output()
 		split_output := strings.Split(string(op), "\n")
+		DIPInfoLogger.Println(string(op))
 		Dip_name := split_output[len(split_output)-2]
-		InfoLogger.Println("New DIP Name:", Dip_name)
+		DIPInfoLogger.Println("New DIP Name:", Dip_name)
 		package_details[i].Dip_name = Dip_name
 		if err != nil {
-			ErrorLogger.Println(err.Error())
+			DIPErrorLogger.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -293,7 +296,7 @@ func GenerateEarkDipActivity(ctx context.Context, package_details []DIPPackageDe
 
 func ValidateEarkDipPackagesActivity(ctx context.Context, package_details []DIPPackageDetails) ([]DIPPackageDetails, error) {
 
-	InfoLogger.Println("Starting: Validate EARK DIP")
+	DIPInfoLogger.Println("Starting: Validate EARK DIP")
 
 	// Iterate over every package running the resulting EARK AIP through the commomns IP validator
 	for i, pkg := range package_details {
@@ -301,7 +304,7 @@ func ValidateEarkDipPackagesActivity(ctx context.Context, package_details []DIPP
 		stdout, err := cmd.Output()
 
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return nil, err
 		}
 
@@ -309,7 +312,7 @@ func ValidateEarkDipPackagesActivity(ctx context.Context, package_details []DIPP
 
 		jsonFile, err := os.Open(path)
 		if err != nil {
-			ErrorLogger.Println(err)
+			DIPErrorLogger.Println(err)
 			return nil, err
 		}
 		defer jsonFile.Close()
@@ -324,13 +327,13 @@ func ValidateEarkDipPackagesActivity(ctx context.Context, package_details []DIPP
 
 func EarkDipValidationReportActivity(ctx context.Context, package_details []DIPPackageDetails) error {
 
-	InfoLogger.Println("Starting: EARK DIP Validation Report")
+	DIPInfoLogger.Println("Starting: EARK DIP Validation Report")
 	mapping := []AIPDIPMapping{}
 
 	// Display in the logs every EARK AIP that fails verification
 	for _, pkg := range package_details {
 		if !pkg.Dip_valid {
-			WarningLogger.Println("DIP Package:", pkg.Aip_name, pkg.Dip_name, "failed validation")
+			DIPWarningLogger.Println("DIP Package:", pkg.Aip_name, pkg.Dip_name, "failed validation")
 		}
 		mapping = append(mapping, AIPDIPMapping{pkg.Aip_name, pkg.Dip_name})
 	}
