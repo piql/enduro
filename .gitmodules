@@ -7,3 +7,6 @@
 [submodule "scripts/sip_to_am_transfer"]
 	path = scripts/sip_to_am_transfer
 	url = https://github.com/penwern/sip_to_am_transfer.git
+[submodule "scripts/eark_aip_to_dip"]
+	path = scripts/eark_aip_to_dip
+	url = https://github.com/penwern/eark_aip_to_dip.git
