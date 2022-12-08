@@ -1,6 +1,7 @@
 /logs
 /am_transfers
 /eark_aips
+/dips
 !*.gitkeep
 
 /build
