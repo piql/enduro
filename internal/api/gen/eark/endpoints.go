@@ -17,7 +17,7 @@ import (
 type Endpoints struct {
 	GenEarkAips  goa.Endpoint
 	AipGenStatus goa.Endpoint
-	CreateDips   goa.Endpoint
+	GenEarkDips  goa.Endpoint
 	DipGenStatus goa.Endpoint
 }
 
@@ -26,7 +26,7 @@ func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		GenEarkAips:  NewGenEarkAipsEndpoint(s),
 		AipGenStatus: NewAipGenStatusEndpoint(s),
-		CreateDips:   NewCreateDipsEndpoint(s),
+		GenEarkDips:  NewGenEarkDipsEndpoint(s),
 		DipGenStatus: NewDipGenStatusEndpoint(s),
 	}
 }
@@ -35,7 +35,7 @@ func NewEndpoints(s Service) *Endpoints {
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.GenEarkAips = m(e.GenEarkAips)
 	e.AipGenStatus = m(e.AipGenStatus)
-	e.CreateDips = m(e.CreateDips)
+	e.GenEarkDips = m(e.GenEarkDips)
 	e.DipGenStatus = m(e.DipGenStatus)
 }
 
@@ -55,11 +55,11 @@ func NewAipGenStatusEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewCreateDipsEndpoint returns an endpoint function that calls the method
-// "create_dips" of service "eark".
-func NewCreateDipsEndpoint(s Service) goa.Endpoint {
+// NewGenEarkDipsEndpoint returns an endpoint function that calls the method
+// "gen_eark_dips" of service "eark".
+func NewGenEarkDipsEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return s.CreateDips(ctx)
+		return s.GenEarkDips(ctx)
 	}
 }
 

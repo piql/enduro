@@ -22,7 +22,7 @@ type Server struct {
 	Mounts       []*MountPoint
 	GenEarkAips  http.Handler
 	AipGenStatus http.Handler
-	CreateDips   http.Handler
+	GenEarkDips  http.Handler
 	DipGenStatus http.Handler
 	CORS         http.Handler
 }
@@ -62,7 +62,7 @@ func New(
 		Mounts: []*MountPoint{
 			{"GenEarkAips", "POST", "/eark/gen-aip"},
 			{"AipGenStatus", "GET", "/eark/aip-gen-status"},
-			{"CreateDips", "POST", "/eark/gen_dip"},
+			{"GenEarkDips", "POST", "/eark/gen_dip"},
 			{"DipGenStatus", "GET", "/eark/dip-gen-status"},
 			{"CORS", "OPTIONS", "/eark/gen-aip"},
 			{"CORS", "OPTIONS", "/eark/aip-gen-status"},
@@ -71,7 +71,7 @@ func New(
 		},
 		GenEarkAips:  NewGenEarkAipsHandler(e.GenEarkAips, mux, decoder, encoder, errhandler, formatter),
 		AipGenStatus: NewAipGenStatusHandler(e.AipGenStatus, mux, decoder, encoder, errhandler, formatter),
-		CreateDips:   NewCreateDipsHandler(e.CreateDips, mux, decoder, encoder, errhandler, formatter),
+		GenEarkDips:  NewGenEarkDipsHandler(e.GenEarkDips, mux, decoder, encoder, errhandler, formatter),
 		DipGenStatus: NewDipGenStatusHandler(e.DipGenStatus, mux, decoder, encoder, errhandler, formatter),
 		CORS:         NewCORSHandler(),
 	}
@@ -84,7 +84,7 @@ func (s *Server) Service() string { return "eark" }
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.GenEarkAips = m(s.GenEarkAips)
 	s.AipGenStatus = m(s.AipGenStatus)
-	s.CreateDips = m(s.CreateDips)
+	s.GenEarkDips = m(s.GenEarkDips)
 	s.DipGenStatus = m(s.DipGenStatus)
 	s.CORS = m(s.CORS)
 }
@@ -93,7 +93,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountGenEarkAipsHandler(mux, h.GenEarkAips)
 	MountAipGenStatusHandler(mux, h.AipGenStatus)
-	MountCreateDipsHandler(mux, h.CreateDips)
+	MountGenEarkDipsHandler(mux, h.GenEarkDips)
 	MountDipGenStatusHandler(mux, h.DipGenStatus)
 	MountCORSHandler(mux, h.CORS)
 }
@@ -191,9 +191,9 @@ func NewAipGenStatusHandler(
 	})
 }
 
-// MountCreateDipsHandler configures the mux to serve the "eark" service
-// "create_dips" endpoint.
-func MountCreateDipsHandler(mux goahttp.Muxer, h http.Handler) {
+// MountGenEarkDipsHandler configures the mux to serve the "eark" service
+// "gen_eark_dips" endpoint.
+func MountGenEarkDipsHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
@@ -203,9 +203,9 @@ func MountCreateDipsHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("POST", "/eark/gen_dip", f)
 }
 
-// NewCreateDipsHandler creates a HTTP handler which loads the HTTP request and
-// calls the "eark" service "create_dips" endpoint.
-func NewCreateDipsHandler(
+// NewGenEarkDipsHandler creates a HTTP handler which loads the HTTP request
+// and calls the "eark" service "gen_eark_dips" endpoint.
+func NewGenEarkDipsHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -214,12 +214,12 @@ func NewCreateDipsHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		encodeResponse = EncodeCreateDipsResponse(encoder)
-		encodeError    = EncodeCreateDipsError(encoder, formatter)
+		encodeResponse = EncodeGenEarkDipsResponse(encoder)
+		encodeError    = EncodeGenEarkDipsError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "create_dips")
+		ctx = context.WithValue(ctx, goa.MethodKey, "gen_eark_dips")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
 		var err error
 		res, err := endpoint(ctx, nil)

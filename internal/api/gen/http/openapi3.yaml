@@ -776,9 +776,9 @@ paths:
     post:
       tags:
       - eark
-      summary: create_dips eark
+      summary: gen_eark_dips eark
       description: Submit a new E-Ark DIP Workflow
-      operationId: eark#create_dips
+      operationId: eark#gen_eark_dips
       responses:
         "202":
           description: Accepted response.

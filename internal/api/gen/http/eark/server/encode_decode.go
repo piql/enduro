@@ -80,21 +80,21 @@ func EncodeAipGenStatusResponse(encoder func(context.Context, http.ResponseWrite
 	}
 }
 
-// EncodeCreateDipsResponse returns an encoder for responses returned by the
-// eark create_dips endpoint.
-func EncodeCreateDipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeGenEarkDipsResponse returns an encoder for responses returned by the
+// eark gen_eark_dips endpoint.
+func EncodeGenEarkDipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res, _ := v.(*eark.EarkDIPResult)
 		enc := encoder(ctx, w)
-		body := NewCreateDipsResponseBody(res)
+		body := NewGenEarkDipsResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
 		return enc.Encode(body)
 	}
 }
 
-// EncodeCreateDipsError returns an encoder for errors returned by the
-// create_dips eark endpoint.
-func EncodeCreateDipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeGenEarkDipsError returns an encoder for errors returned by the
+// gen_eark_dips eark endpoint.
+func EncodeGenEarkDipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		en, ok := v.(ErrorNamer)
@@ -109,7 +109,7 @@ func EncodeCreateDipsError(encoder func(context.Context, http.ResponseWriter) go
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewCreateDipsNotAvailableResponseBody(res)
+				body = NewGenEarkDipsNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -121,7 +121,7 @@ func EncodeCreateDipsError(encoder func(context.Context, http.ResponseWriter) go
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewCreateDipsNotValidResponseBody(res)
+				body = NewGenEarkDipsNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)

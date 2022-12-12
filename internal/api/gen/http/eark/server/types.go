@@ -28,9 +28,9 @@ type AipGenStatusResponseBody struct {
 	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
-// CreateDipsResponseBody is the type of the "eark" service "create_dips"
+// GenEarkDipsResponseBody is the type of the "eark" service "gen_eark_dips"
 // endpoint HTTP response body.
-type CreateDipsResponseBody struct {
+type GenEarkDipsResponseBody struct {
 	Success bool    `form:"success" json:"success" xml:"success"`
 	AipName *string `form:"aip_name,omitempty" json:"aip_name,omitempty" xml:"aip_name,omitempty"`
 	DipName *string `form:"dip_name,omitempty" json:"dip_name,omitempty" xml:"dip_name,omitempty"`
@@ -81,9 +81,9 @@ type GenEarkAipsNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// CreateDipsNotAvailableResponseBody is the type of the "eark" service
-// "create_dips" endpoint HTTP response body for the "not_available" error.
-type CreateDipsNotAvailableResponseBody struct {
+// GenEarkDipsNotAvailableResponseBody is the type of the "eark" service
+// "gen_eark_dips" endpoint HTTP response body for the "not_available" error.
+type GenEarkDipsNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -99,9 +99,9 @@ type CreateDipsNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// CreateDipsNotValidResponseBody is the type of the "eark" service
-// "create_dips" endpoint HTTP response body for the "not_valid" error.
-type CreateDipsNotValidResponseBody struct {
+// GenEarkDipsNotValidResponseBody is the type of the "eark" service
+// "gen_eark_dips" endpoint HTTP response body for the "not_valid" error.
+type GenEarkDipsNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -139,10 +139,10 @@ func NewAipGenStatusResponseBody(res *eark.EarkStatusResult) *AipGenStatusRespon
 	return body
 }
 
-// NewCreateDipsResponseBody builds the HTTP response body from the result of
-// the "create_dips" endpoint of the "eark" service.
-func NewCreateDipsResponseBody(res *eark.EarkDIPResult) *CreateDipsResponseBody {
-	body := &CreateDipsResponseBody{
+// NewGenEarkDipsResponseBody builds the HTTP response body from the result of
+// the "gen_eark_dips" endpoint of the "eark" service.
+func NewGenEarkDipsResponseBody(res *eark.EarkDIPResult) *GenEarkDipsResponseBody {
+	body := &GenEarkDipsResponseBody{
 		Success: res.Success,
 		AipName: res.AipName,
 		DipName: res.DipName,
@@ -190,10 +190,10 @@ func NewGenEarkAipsNotValidResponseBody(res *goa.ServiceError) *GenEarkAipsNotVa
 	return body
 }
 
-// NewCreateDipsNotAvailableResponseBody builds the HTTP response body from the
-// result of the "create_dips" endpoint of the "eark" service.
-func NewCreateDipsNotAvailableResponseBody(res *goa.ServiceError) *CreateDipsNotAvailableResponseBody {
-	body := &CreateDipsNotAvailableResponseBody{
+// NewGenEarkDipsNotAvailableResponseBody builds the HTTP response body from
+// the result of the "gen_eark_dips" endpoint of the "eark" service.
+func NewGenEarkDipsNotAvailableResponseBody(res *goa.ServiceError) *GenEarkDipsNotAvailableResponseBody {
+	body := &GenEarkDipsNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -204,10 +204,10 @@ func NewCreateDipsNotAvailableResponseBody(res *goa.ServiceError) *CreateDipsNot
 	return body
 }
 
-// NewCreateDipsNotValidResponseBody builds the HTTP response body from the
-// result of the "create_dips" endpoint of the "eark" service.
-func NewCreateDipsNotValidResponseBody(res *goa.ServiceError) *CreateDipsNotValidResponseBody {
-	body := &CreateDipsNotValidResponseBody{
+// NewGenEarkDipsNotValidResponseBody builds the HTTP response body from the
+// result of the "gen_eark_dips" endpoint of the "eark" service.
+func NewGenEarkDipsNotValidResponseBody(res *goa.ServiceError) *GenEarkDipsNotValidResponseBody {
+	body := &GenEarkDipsNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,

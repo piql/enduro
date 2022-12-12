@@ -20,7 +20,7 @@ type Service interface {
 	// Retrieve status of current E-Ark AIP Workflow operation.
 	AipGenStatus(context.Context) (res *EarkStatusResult, err error)
 	// Submit a new E-Ark DIP Workflow
-	CreateDips(context.Context) (res *EarkDIPResult, err error)
+	GenEarkDips(context.Context) (res *EarkDIPResult, err error)
 	// Retrieve status of current E-Ark DIP Workflow operation.
 	DipGenStatus(context.Context) (res *EarkStatusResult, err error)
 }
@@ -33,7 +33,7 @@ const ServiceName = "eark"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [4]string{"gen_eark_aips", "aip_gen_status", "create_dips", "dip_gen_status"}
+var MethodNames = [4]string{"gen_eark_aips", "aip_gen_status", "gen_eark_dips", "dip_gen_status"}
 
 // EarkResult is the result type of the eark service gen_eark_aips method.
 type EarkResult struct {
@@ -50,7 +50,7 @@ type EarkStatusResult struct {
 	RunID      *string
 }
 
-// EarkDIPResult is the result type of the eark service create_dips method.
+// EarkDIPResult is the result type of the eark service gen_eark_dips method.
 type EarkDIPResult struct {
 	Success bool
 	AipName *string

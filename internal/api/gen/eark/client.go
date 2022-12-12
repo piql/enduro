@@ -17,16 +17,16 @@ import (
 type Client struct {
 	GenEarkAipsEndpoint  goa.Endpoint
 	AipGenStatusEndpoint goa.Endpoint
-	CreateDipsEndpoint   goa.Endpoint
+	GenEarkDipsEndpoint  goa.Endpoint
 	DipGenStatusEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "eark" service client given the endpoints.
-func NewClient(genEarkAips, aipGenStatus, createDips, dipGenStatus goa.Endpoint) *Client {
+func NewClient(genEarkAips, aipGenStatus, genEarkDips, dipGenStatus goa.Endpoint) *Client {
 	return &Client{
 		GenEarkAipsEndpoint:  genEarkAips,
 		AipGenStatusEndpoint: aipGenStatus,
-		CreateDipsEndpoint:   createDips,
+		GenEarkDipsEndpoint:  genEarkDips,
 		DipGenStatusEndpoint: dipGenStatus,
 	}
 }
@@ -55,14 +55,14 @@ func (c *Client) AipGenStatus(ctx context.Context) (res *EarkStatusResult, err e
 	return ires.(*EarkStatusResult), nil
 }
 
-// CreateDips calls the "create_dips" endpoint of the "eark" service.
-// CreateDips may return the following errors:
+// GenEarkDips calls the "gen_eark_dips" endpoint of the "eark" service.
+// GenEarkDips may return the following errors:
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) CreateDips(ctx context.Context) (res *EarkDIPResult, err error) {
+func (c *Client) GenEarkDips(ctx context.Context) (res *EarkDIPResult, err error) {
 	var ires interface{}
-	ires, err = c.CreateDipsEndpoint(ctx, nil)
+	ires, err = c.GenEarkDipsEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}

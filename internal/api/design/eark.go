@@ -29,7 +29,7 @@ var _ = Service("eark", func() {
 			Response(StatusOK)
 		})
 	})
-	Methoqd("create_dips", func() {
+	Method("gen_eark_dips", func() {
 		Description("Submit a new E-Ark DIP Workflow")
 		Result(EarkDIPResult)
 		Error("not_available")

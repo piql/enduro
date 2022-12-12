@@ -17,8 +17,8 @@ func AipGenStatusEarkPath() string {
 	return "/eark/aip-gen-status"
 }
 
-// CreateDipsEarkPath returns the URL path to the eark service create_dips HTTP endpoint.
-func CreateDipsEarkPath() string {
+// GenEarkDipsEarkPath returns the URL path to the eark service gen_eark_dips HTTP endpoint.
+func GenEarkDipsEarkPath() string {
 	return "/eark/gen_dip"
 }
 

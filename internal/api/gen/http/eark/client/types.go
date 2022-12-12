@@ -28,9 +28,9 @@ type AipGenStatusResponseBody struct {
 	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
-// CreateDipsResponseBody is the type of the "eark" service "create_dips"
+// GenEarkDipsResponseBody is the type of the "eark" service "gen_eark_dips"
 // endpoint HTTP response body.
-type CreateDipsResponseBody struct {
+type GenEarkDipsResponseBody struct {
 	Success *bool   `form:"success,omitempty" json:"success,omitempty" xml:"success,omitempty"`
 	AipName *string `form:"aip_name,omitempty" json:"aip_name,omitempty" xml:"aip_name,omitempty"`
 	DipName *string `form:"dip_name,omitempty" json:"dip_name,omitempty" xml:"dip_name,omitempty"`
@@ -81,9 +81,9 @@ type GenEarkAipsNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// CreateDipsNotAvailableResponseBody is the type of the "eark" service
-// "create_dips" endpoint HTTP response body for the "not_available" error.
-type CreateDipsNotAvailableResponseBody struct {
+// GenEarkDipsNotAvailableResponseBody is the type of the "eark" service
+// "gen_eark_dips" endpoint HTTP response body for the "not_available" error.
+type GenEarkDipsNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -99,9 +99,9 @@ type CreateDipsNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// CreateDipsNotValidResponseBody is the type of the "eark" service
-// "create_dips" endpoint HTTP response body for the "not_valid" error.
-type CreateDipsNotValidResponseBody struct {
+// GenEarkDipsNotValidResponseBody is the type of the "eark" service
+// "gen_eark_dips" endpoint HTTP response body for the "not_valid" error.
+type GenEarkDipsNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -171,9 +171,9 @@ func NewAipGenStatusEarkStatusResultOK(body *AipGenStatusResponseBody) *eark.Ear
 	return v
 }
 
-// NewCreateDipsEarkDIPResultAccepted builds a "eark" service "create_dips"
+// NewGenEarkDipsEarkDIPResultAccepted builds a "eark" service "gen_eark_dips"
 // endpoint result from a HTTP "Accepted" response.
-func NewCreateDipsEarkDIPResultAccepted(body *CreateDipsResponseBody) *eark.EarkDIPResult {
+func NewGenEarkDipsEarkDIPResultAccepted(body *GenEarkDipsResponseBody) *eark.EarkDIPResult {
 	v := &eark.EarkDIPResult{
 		Success: *body.Success,
 		AipName: body.AipName,
@@ -183,9 +183,9 @@ func NewCreateDipsEarkDIPResultAccepted(body *CreateDipsResponseBody) *eark.Eark
 	return v
 }
 
-// NewCreateDipsNotAvailable builds a eark service create_dips endpoint
+// NewGenEarkDipsNotAvailable builds a eark service gen_eark_dips endpoint
 // not_available error.
-func NewCreateDipsNotAvailable(body *CreateDipsNotAvailableResponseBody) *goa.ServiceError {
+func NewGenEarkDipsNotAvailable(body *GenEarkDipsNotAvailableResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -198,9 +198,9 @@ func NewCreateDipsNotAvailable(body *CreateDipsNotAvailableResponseBody) *goa.Se
 	return v
 }
 
-// NewCreateDipsNotValid builds a eark service create_dips endpoint not_valid
-// error.
-func NewCreateDipsNotValid(body *CreateDipsNotValidResponseBody) *goa.ServiceError {
+// NewGenEarkDipsNotValid builds a eark service gen_eark_dips endpoint
+// not_valid error.
+func NewGenEarkDipsNotValid(body *GenEarkDipsNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -247,9 +247,9 @@ func ValidateAipGenStatusResponseBody(body *AipGenStatusResponseBody) (err error
 	return
 }
 
-// ValidateCreateDipsResponseBody runs the validations defined on
-// create_dips_response_body
-func ValidateCreateDipsResponseBody(body *CreateDipsResponseBody) (err error) {
+// ValidateGenEarkDipsResponseBody runs the validations defined on
+// gen_eark_dips_response_body
+func ValidateGenEarkDipsResponseBody(body *GenEarkDipsResponseBody) (err error) {
 	if body.Success == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("success", "body"))
 	}
@@ -313,9 +313,9 @@ func ValidateGenEarkAipsNotValidResponseBody(body *GenEarkAipsNotValidResponseBo
 	return
 }
 
-// ValidateCreateDipsNotAvailableResponseBody runs the validations defined on
-// create_dips_not_available_response_body
-func ValidateCreateDipsNotAvailableResponseBody(body *CreateDipsNotAvailableResponseBody) (err error) {
+// ValidateGenEarkDipsNotAvailableResponseBody runs the validations defined on
+// gen_eark_dips_not_available_response_body
+func ValidateGenEarkDipsNotAvailableResponseBody(body *GenEarkDipsNotAvailableResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -337,9 +337,9 @@ func ValidateCreateDipsNotAvailableResponseBody(body *CreateDipsNotAvailableResp
 	return
 }
 
-// ValidateCreateDipsNotValidResponseBody runs the validations defined on
-// create_dips_not_valid_response_body
-func ValidateCreateDipsNotValidResponseBody(body *CreateDipsNotValidResponseBody) (err error) {
+// ValidateGenEarkDipsNotValidResponseBody runs the validations defined on
+// gen_eark_dips_not_valid_response_body
+func ValidateGenEarkDipsNotValidResponseBody(body *GenEarkDipsNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
