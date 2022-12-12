@@ -7,12 +7,22 @@
 
 package server
 
-// SubmitEarkPath returns the URL path to the eark service submit HTTP endpoint.
-func SubmitEarkPath() string {
-	return "/eark"
+// GenEarkAipsEarkPath returns the URL path to the eark service gen_eark_aips HTTP endpoint.
+func GenEarkAipsEarkPath() string {
+	return "/eark/gen-aip"
 }
 
-// StatusEarkPath returns the URL path to the eark service status HTTP endpoint.
-func StatusEarkPath() string {
-	return "/eark"
+// AipGenStatusEarkPath returns the URL path to the eark service aip_gen_status HTTP endpoint.
+func AipGenStatusEarkPath() string {
+	return "/eark/aip-gen-status"
+}
+
+// CreateDipsEarkPath returns the URL path to the eark service create_dips HTTP endpoint.
+func CreateDipsEarkPath() string {
+	return "/eark/gen_dip"
+}
+
+// DipGenStatusEarkPath returns the URL path to the eark service dip_gen_status HTTP endpoint.
+func DipGenStatusEarkPath() string {
+	return "/eark/dip-gen-status"
 }

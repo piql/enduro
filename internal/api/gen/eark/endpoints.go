@@ -15,36 +15,58 @@ import (
 
 // Endpoints wraps the "eark" service endpoints.
 type Endpoints struct {
-	Submit goa.Endpoint
-	Status goa.Endpoint
+	GenEarkAips  goa.Endpoint
+	AipGenStatus goa.Endpoint
+	CreateDips   goa.Endpoint
+	DipGenStatus goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "eark" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Submit: NewSubmitEndpoint(s),
-		Status: NewStatusEndpoint(s),
+		GenEarkAips:  NewGenEarkAipsEndpoint(s),
+		AipGenStatus: NewAipGenStatusEndpoint(s),
+		CreateDips:   NewCreateDipsEndpoint(s),
+		DipGenStatus: NewDipGenStatusEndpoint(s),
 	}
 }
 
 // Use applies the given middleware to all the "eark" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
-	e.Submit = m(e.Submit)
-	e.Status = m(e.Status)
+	e.GenEarkAips = m(e.GenEarkAips)
+	e.AipGenStatus = m(e.AipGenStatus)
+	e.CreateDips = m(e.CreateDips)
+	e.DipGenStatus = m(e.DipGenStatus)
 }
 
-// NewSubmitEndpoint returns an endpoint function that calls the method
-// "submit" of service "eark".
-func NewSubmitEndpoint(s Service) goa.Endpoint {
+// NewGenEarkAipsEndpoint returns an endpoint function that calls the method
+// "gen_eark_aips" of service "eark".
+func NewGenEarkAipsEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return s.Submit(ctx)
+		return s.GenEarkAips(ctx)
 	}
 }
 
-// NewStatusEndpoint returns an endpoint function that calls the method
-// "status" of service "eark".
-func NewStatusEndpoint(s Service) goa.Endpoint {
+// NewAipGenStatusEndpoint returns an endpoint function that calls the method
+// "aip_gen_status" of service "eark".
+func NewAipGenStatusEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return s.Status(ctx)
+		return s.AipGenStatus(ctx)
+	}
+}
+
+// NewCreateDipsEndpoint returns an endpoint function that calls the method
+// "create_dips" of service "eark".
+func NewCreateDipsEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return s.CreateDips(ctx)
+	}
+}
+
+// NewDipGenStatusEndpoint returns an endpoint function that calls the method
+// "dip_gen_status" of service "eark".
+func NewDipGenStatusEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return s.DipGenStatus(ctx)
 	}
 }

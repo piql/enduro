@@ -15,36 +15,64 @@ import (
 
 // Client is the "eark" service client.
 type Client struct {
-	SubmitEndpoint goa.Endpoint
-	StatusEndpoint goa.Endpoint
+	GenEarkAipsEndpoint  goa.Endpoint
+	AipGenStatusEndpoint goa.Endpoint
+	CreateDipsEndpoint   goa.Endpoint
+	DipGenStatusEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "eark" service client given the endpoints.
-func NewClient(submit, status goa.Endpoint) *Client {
+func NewClient(genEarkAips, aipGenStatus, createDips, dipGenStatus goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint: submit,
-		StatusEndpoint: status,
+		GenEarkAipsEndpoint:  genEarkAips,
+		AipGenStatusEndpoint: aipGenStatus,
+		CreateDipsEndpoint:   createDips,
+		DipGenStatusEndpoint: dipGenStatus,
 	}
 }
 
-// Submit calls the "submit" endpoint of the "eark" service.
-// Submit may return the following errors:
+// GenEarkAips calls the "gen_eark_aips" endpoint of the "eark" service.
+// GenEarkAips may return the following errors:
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) Submit(ctx context.Context) (res *EarkResult, err error) {
+func (c *Client) GenEarkAips(ctx context.Context) (res *EarkResult, err error) {
 	var ires interface{}
-	ires, err = c.SubmitEndpoint(ctx, nil)
+	ires, err = c.GenEarkAipsEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
 	return ires.(*EarkResult), nil
 }
 
-// Status calls the "status" endpoint of the "eark" service.
-func (c *Client) Status(ctx context.Context) (res *EarkStatusResult, err error) {
+// AipGenStatus calls the "aip_gen_status" endpoint of the "eark" service.
+func (c *Client) AipGenStatus(ctx context.Context) (res *EarkStatusResult, err error) {
 	var ires interface{}
-	ires, err = c.StatusEndpoint(ctx, nil)
+	ires, err = c.AipGenStatusEndpoint(ctx, nil)
+	if err != nil {
+		return
+	}
+	return ires.(*EarkStatusResult), nil
+}
+
+// CreateDips calls the "create_dips" endpoint of the "eark" service.
+// CreateDips may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
+func (c *Client) CreateDips(ctx context.Context) (res *EarkDIPResult, err error) {
+	var ires interface{}
+	ires, err = c.CreateDipsEndpoint(ctx, nil)
+	if err != nil {
+		return
+	}
+	return ires.(*EarkDIPResult), nil
+}
+
+// DipGenStatus calls the "dip_gen_status" endpoint of the "eark" service.
+func (c *Client) DipGenStatus(ctx context.Context) (res *EarkStatusResult, err error) {
+	var ires interface{}
+	ires, err = c.DipGenStatusEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}

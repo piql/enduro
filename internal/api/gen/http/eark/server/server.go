@@ -19,10 +19,12 @@ import (
 
 // Server lists the eark service endpoint HTTP handlers.
 type Server struct {
-	Mounts []*MountPoint
-	Submit http.Handler
-	Status http.Handler
-	CORS   http.Handler
+	Mounts       []*MountPoint
+	GenEarkAips  http.Handler
+	AipGenStatus http.Handler
+	CreateDips   http.Handler
+	DipGenStatus http.Handler
+	CORS         http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -58,13 +60,20 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"Submit", "POST", "/eark"},
-			{"Status", "GET", "/eark"},
-			{"CORS", "OPTIONS", "/eark"},
+			{"GenEarkAips", "POST", "/eark/gen-aip"},
+			{"AipGenStatus", "GET", "/eark/aip-gen-status"},
+			{"CreateDips", "POST", "/eark/gen_dip"},
+			{"DipGenStatus", "GET", "/eark/dip-gen-status"},
+			{"CORS", "OPTIONS", "/eark/gen-aip"},
+			{"CORS", "OPTIONS", "/eark/aip-gen-status"},
+			{"CORS", "OPTIONS", "/eark/gen_dip"},
+			{"CORS", "OPTIONS", "/eark/dip-gen-status"},
 		},
-		Submit: NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
-		Status: NewStatusHandler(e.Status, mux, decoder, encoder, errhandler, formatter),
-		CORS:   NewCORSHandler(),
+		GenEarkAips:  NewGenEarkAipsHandler(e.GenEarkAips, mux, decoder, encoder, errhandler, formatter),
+		AipGenStatus: NewAipGenStatusHandler(e.AipGenStatus, mux, decoder, encoder, errhandler, formatter),
+		CreateDips:   NewCreateDipsHandler(e.CreateDips, mux, decoder, encoder, errhandler, formatter),
+		DipGenStatus: NewDipGenStatusHandler(e.DipGenStatus, mux, decoder, encoder, errhandler, formatter),
+		CORS:         NewCORSHandler(),
 	}
 }
 
@@ -73,15 +82,19 @@ func (s *Server) Service() string { return "eark" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
-	s.Submit = m(s.Submit)
-	s.Status = m(s.Status)
+	s.GenEarkAips = m(s.GenEarkAips)
+	s.AipGenStatus = m(s.AipGenStatus)
+	s.CreateDips = m(s.CreateDips)
+	s.DipGenStatus = m(s.DipGenStatus)
 	s.CORS = m(s.CORS)
 }
 
 // Mount configures the mux to serve the eark endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
-	MountSubmitHandler(mux, h.Submit)
-	MountStatusHandler(mux, h.Status)
+	MountGenEarkAipsHandler(mux, h.GenEarkAips)
+	MountAipGenStatusHandler(mux, h.AipGenStatus)
+	MountCreateDipsHandler(mux, h.CreateDips)
+	MountDipGenStatusHandler(mux, h.DipGenStatus)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -90,21 +103,21 @@ func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
 }
 
-// MountSubmitHandler configures the mux to serve the "eark" service "submit"
-// endpoint.
-func MountSubmitHandler(mux goahttp.Muxer, h http.Handler) {
+// MountGenEarkAipsHandler configures the mux to serve the "eark" service
+// "gen_eark_aips" endpoint.
+func MountGenEarkAipsHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/eark", f)
+	mux.Handle("POST", "/eark/gen-aip", f)
 }
 
-// NewSubmitHandler creates a HTTP handler which loads the HTTP request and
-// calls the "eark" service "submit" endpoint.
-func NewSubmitHandler(
+// NewGenEarkAipsHandler creates a HTTP handler which loads the HTTP request
+// and calls the "eark" service "gen_eark_aips" endpoint.
+func NewGenEarkAipsHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -113,12 +126,12 @@ func NewSubmitHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		encodeResponse = EncodeSubmitResponse(encoder)
-		encodeError    = EncodeSubmitError(encoder, formatter)
+		encodeResponse = EncodeGenEarkAipsResponse(encoder)
+		encodeError    = EncodeGenEarkAipsError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "submit")
+		ctx = context.WithValue(ctx, goa.MethodKey, "gen_eark_aips")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
 		var err error
 		res, err := endpoint(ctx, nil)
@@ -134,21 +147,21 @@ func NewSubmitHandler(
 	})
 }
 
-// MountStatusHandler configures the mux to serve the "eark" service "status"
-// endpoint.
-func MountStatusHandler(mux goahttp.Muxer, h http.Handler) {
+// MountAipGenStatusHandler configures the mux to serve the "eark" service
+// "aip_gen_status" endpoint.
+func MountAipGenStatusHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/eark", f)
+	mux.Handle("GET", "/eark/aip-gen-status", f)
 }
 
-// NewStatusHandler creates a HTTP handler which loads the HTTP request and
-// calls the "eark" service "status" endpoint.
-func NewStatusHandler(
+// NewAipGenStatusHandler creates a HTTP handler which loads the HTTP request
+// and calls the "eark" service "aip_gen_status" endpoint.
+func NewAipGenStatusHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -157,12 +170,100 @@ func NewStatusHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		encodeResponse = EncodeStatusResponse(encoder)
+		encodeResponse = EncodeAipGenStatusResponse(encoder)
 		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "status")
+		ctx = context.WithValue(ctx, goa.MethodKey, "aip_gen_status")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
+		var err error
+		res, err := endpoint(ctx, nil)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountCreateDipsHandler configures the mux to serve the "eark" service
+// "create_dips" endpoint.
+func MountCreateDipsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/eark/gen_dip", f)
+}
+
+// NewCreateDipsHandler creates a HTTP handler which loads the HTTP request and
+// calls the "eark" service "create_dips" endpoint.
+func NewCreateDipsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeCreateDipsResponse(encoder)
+		encodeError    = EncodeCreateDipsError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "create_dips")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
+		var err error
+		res, err := endpoint(ctx, nil)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountDipGenStatusHandler configures the mux to serve the "eark" service
+// "dip_gen_status" endpoint.
+func MountDipGenStatusHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleEarkOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/eark/dip-gen-status", f)
+}
+
+// NewDipGenStatusHandler creates a HTTP handler which loads the HTTP request
+// and calls the "eark" service "dip_gen_status" endpoint.
+func NewDipGenStatusHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeDipGenStatusResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "dip_gen_status")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "eark")
 		var err error
 		res, err := endpoint(ctx, nil)
@@ -182,7 +283,10 @@ func NewStatusHandler(
 // service eark.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleEarkOrigin(h)
-	mux.Handle("OPTIONS", "/eark", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/eark/gen-aip", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/eark/aip-gen-status", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/eark/gen_dip", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/eark/dip-gen-status", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

@@ -17,13 +17,13 @@ import (
 	goahttp "goa.design/goa/v3/http"
 )
 
-// BuildSubmitRequest instantiates a HTTP request object with method and path
-// set to call the "eark" service "submit" endpoint
-func (c *Client) BuildSubmitRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: SubmitEarkPath()}
+// BuildGenEarkAipsRequest instantiates a HTTP request object with method and
+// path set to call the "eark" service "gen_eark_aips" endpoint
+func (c *Client) BuildGenEarkAipsRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: GenEarkAipsEarkPath()}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("eark", "submit", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("eark", "gen_eark_aips", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -32,14 +32,14 @@ func (c *Client) BuildSubmitRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
-// DecodeSubmitResponse returns a decoder for responses returned by the eark
-// submit endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-// DecodeSubmitResponse may return the following errors:
+// DecodeGenEarkAipsResponse returns a decoder for responses returned by the
+// eark gen_eark_aips endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeGenEarkAipsResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - error: internal error
-func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+func DecodeGenEarkAipsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := ioutil.ReadAll(resp.Body)
@@ -56,61 +56,61 @@ func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		switch resp.StatusCode {
 		case http.StatusAccepted:
 			var (
-				body SubmitResponseBody
+				body GenEarkAipsResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("eark", "submit", err)
+				return nil, goahttp.ErrDecodingError("eark", "gen_eark_aips", err)
 			}
-			err = ValidateSubmitResponseBody(&body)
+			err = ValidateGenEarkAipsResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("eark", "submit", err)
+				return nil, goahttp.ErrValidationError("eark", "gen_eark_aips", err)
 			}
-			res := NewSubmitEarkResultAccepted(&body)
+			res := NewGenEarkAipsEarkResultAccepted(&body)
 			return res, nil
 		case http.StatusConflict:
 			var (
-				body SubmitNotAvailableResponseBody
+				body GenEarkAipsNotAvailableResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("eark", "submit", err)
+				return nil, goahttp.ErrDecodingError("eark", "gen_eark_aips", err)
 			}
-			err = ValidateSubmitNotAvailableResponseBody(&body)
+			err = ValidateGenEarkAipsNotAvailableResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("eark", "submit", err)
+				return nil, goahttp.ErrValidationError("eark", "gen_eark_aips", err)
 			}
-			return nil, NewSubmitNotAvailable(&body)
+			return nil, NewGenEarkAipsNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
-				body SubmitNotValidResponseBody
+				body GenEarkAipsNotValidResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("eark", "submit", err)
+				return nil, goahttp.ErrDecodingError("eark", "gen_eark_aips", err)
 			}
-			err = ValidateSubmitNotValidResponseBody(&body)
+			err = ValidateGenEarkAipsNotValidResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("eark", "submit", err)
+				return nil, goahttp.ErrValidationError("eark", "gen_eark_aips", err)
 			}
-			return nil, NewSubmitNotValid(&body)
+			return nil, NewGenEarkAipsNotValid(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("eark", "submit", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("eark", "gen_eark_aips", resp.StatusCode, string(body))
 		}
 	}
 }
 
-// BuildStatusRequest instantiates a HTTP request object with method and path
-// set to call the "eark" service "status" endpoint
-func (c *Client) BuildStatusRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: StatusEarkPath()}
+// BuildAipGenStatusRequest instantiates a HTTP request object with method and
+// path set to call the "eark" service "aip_gen_status" endpoint
+func (c *Client) BuildAipGenStatusRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AipGenStatusEarkPath()}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("eark", "status", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("eark", "aip_gen_status", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -119,10 +119,10 @@ func (c *Client) BuildStatusRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
-// DecodeStatusResponse returns a decoder for responses returned by the eark
-// status endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-func DecodeStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+// DecodeAipGenStatusResponse returns a decoder for responses returned by the
+// eark aip_gen_status endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeAipGenStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := ioutil.ReadAll(resp.Body)
@@ -139,22 +139,164 @@ func DecodeStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body StatusResponseBody
+				body AipGenStatusResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("eark", "status", err)
+				return nil, goahttp.ErrDecodingError("eark", "aip_gen_status", err)
 			}
-			err = ValidateStatusResponseBody(&body)
+			err = ValidateAipGenStatusResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("eark", "status", err)
+				return nil, goahttp.ErrValidationError("eark", "aip_gen_status", err)
 			}
-			res := NewStatusEarkStatusResultOK(&body)
+			res := NewAipGenStatusEarkStatusResultOK(&body)
 			return res, nil
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("eark", "status", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("eark", "aip_gen_status", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildCreateDipsRequest instantiates a HTTP request object with method and
+// path set to call the "eark" service "create_dips" endpoint
+func (c *Client) BuildCreateDipsRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateDipsEarkPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("eark", "create_dips", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeCreateDipsResponse returns a decoder for responses returned by the
+// eark create_dips endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeCreateDipsResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - error: internal error
+func DecodeCreateDipsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			var (
+				body CreateDipsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("eark", "create_dips", err)
+			}
+			err = ValidateCreateDipsResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("eark", "create_dips", err)
+			}
+			res := NewCreateDipsEarkDIPResultAccepted(&body)
+			return res, nil
+		case http.StatusConflict:
+			var (
+				body CreateDipsNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("eark", "create_dips", err)
+			}
+			err = ValidateCreateDipsNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("eark", "create_dips", err)
+			}
+			return nil, NewCreateDipsNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body CreateDipsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("eark", "create_dips", err)
+			}
+			err = ValidateCreateDipsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("eark", "create_dips", err)
+			}
+			return nil, NewCreateDipsNotValid(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("eark", "create_dips", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildDipGenStatusRequest instantiates a HTTP request object with method and
+// path set to call the "eark" service "dip_gen_status" endpoint
+func (c *Client) BuildDipGenStatusRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DipGenStatusEarkPath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("eark", "dip_gen_status", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeDipGenStatusResponse returns a decoder for responses returned by the
+// eark dip_gen_status endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeDipGenStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body DipGenStatusResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("eark", "dip_gen_status", err)
+			}
+			err = ValidateDipGenStatusResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("eark", "dip_gen_status", err)
+			}
+			res := NewDipGenStatusEarkStatusResultOK(&body)
+			return res, nil
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("eark", "dip_gen_status", resp.StatusCode, string(body))
 		}
 	}
 }

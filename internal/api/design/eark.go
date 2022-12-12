@@ -10,35 +10,43 @@ var _ = Service("eark", func() {
 		Path("/eark")
 	})
 	Method("gen_eark_aips", func() {
-		Description("Submit a new E-Ark Workflow")
+		Description("Submit a new E-Ark AIP Workflow")
 		Result(EarkResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/")
+			POST("/gen-aip")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
 	Method("aip_gen_status", func() {
-		Description("Retrieve status of current E-Ark Workflow operation.")
+		Description("Retrieve status of current E-Ark AIP Workflow operation.")
 		Result(EarkStatusResult)
 		HTTP(func() {
-			GET("/")
+			GET("/aip-gen-status")
 			Response(StatusOK)
 		})
 	})
-	Method("create_dips", func() {
-		Description("Create a DIP from E-Ark AIP")
+	Methoqd("create_dips", func() {
+		Description("Submit a new E-Ark DIP Workflow")
 		Result(EarkDIPResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/")
+			POST("/gen_dip")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("dip_gen_status", func() {
+		Description("Retrieve status of current E-Ark DIP Workflow operation.")
+		Result(EarkStatusResult)
+		HTTP(func() {
+			GET("/dip-gen-status")
+			Response(StatusOK)
 		})
 	})
 })

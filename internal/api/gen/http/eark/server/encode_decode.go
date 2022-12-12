@@ -16,21 +16,21 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// EncodeSubmitResponse returns an encoder for responses returned by the eark
-// submit endpoint.
-func EncodeSubmitResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeGenEarkAipsResponse returns an encoder for responses returned by the
+// eark gen_eark_aips endpoint.
+func EncodeGenEarkAipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res, _ := v.(*eark.EarkResult)
 		enc := encoder(ctx, w)
-		body := NewSubmitResponseBody(res)
+		body := NewGenEarkAipsResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
 		return enc.Encode(body)
 	}
 }
 
-// EncodeSubmitError returns an encoder for errors returned by the submit eark
-// endpoint.
-func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeGenEarkAipsError returns an encoder for errors returned by the
+// gen_eark_aips eark endpoint.
+func EncodeGenEarkAipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		en, ok := v.(ErrorNamer)
@@ -45,7 +45,7 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewSubmitNotAvailableResponseBody(res)
+				body = NewGenEarkAipsNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -57,7 +57,7 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewSubmitNotValidResponseBody(res)
+				body = NewGenEarkAipsNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -68,13 +68,77 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeStatusResponse returns an encoder for responses returned by the eark
-// status endpoint.
-func EncodeStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeAipGenStatusResponse returns an encoder for responses returned by the
+// eark aip_gen_status endpoint.
+func EncodeAipGenStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res, _ := v.(*eark.EarkStatusResult)
 		enc := encoder(ctx, w)
-		body := NewStatusResponseBody(res)
+		body := NewAipGenStatusResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// EncodeCreateDipsResponse returns an encoder for responses returned by the
+// eark create_dips endpoint.
+func EncodeCreateDipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*eark.EarkDIPResult)
+		enc := encoder(ctx, w)
+		body := NewCreateDipsResponseBody(res)
+		w.WriteHeader(http.StatusAccepted)
+		return enc.Encode(body)
+	}
+}
+
+// EncodeCreateDipsError returns an encoder for errors returned by the
+// create_dips eark endpoint.
+func EncodeCreateDipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_available":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewCreateDipsNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
+		case "not_valid":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewCreateDipsNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeDipGenStatusResponse returns an encoder for responses returned by the
+// eark dip_gen_status endpoint.
+func EncodeDipGenStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*eark.EarkStatusResult)
+		enc := encoder(ctx, w)
+		body := NewDipGenStatusResponseBody(res)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}

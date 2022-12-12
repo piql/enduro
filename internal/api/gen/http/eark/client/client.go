@@ -17,11 +17,21 @@ import (
 
 // Client lists the eark service endpoint HTTP clients.
 type Client struct {
-	// Submit Doer is the HTTP client used to make requests to the submit endpoint.
-	SubmitDoer goahttp.Doer
+	// GenEarkAips Doer is the HTTP client used to make requests to the
+	// gen_eark_aips endpoint.
+	GenEarkAipsDoer goahttp.Doer
 
-	// Status Doer is the HTTP client used to make requests to the status endpoint.
-	StatusDoer goahttp.Doer
+	// AipGenStatus Doer is the HTTP client used to make requests to the
+	// aip_gen_status endpoint.
+	AipGenStatusDoer goahttp.Doer
+
+	// CreateDips Doer is the HTTP client used to make requests to the create_dips
+	// endpoint.
+	CreateDipsDoer goahttp.Doer
+
+	// DipGenStatus Doer is the HTTP client used to make requests to the
+	// dip_gen_status endpoint.
+	DipGenStatusDoer goahttp.Doer
 
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
@@ -46,8 +56,10 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		SubmitDoer:          doer,
-		StatusDoer:          doer,
+		GenEarkAipsDoer:     doer,
+		AipGenStatusDoer:    doer,
+		CreateDipsDoer:      doer,
+		DipGenStatusDoer:    doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -57,39 +69,77 @@ func NewClient(
 	}
 }
 
-// Submit returns an endpoint that makes HTTP requests to the eark service
-// submit server.
-func (c *Client) Submit() goa.Endpoint {
+// GenEarkAips returns an endpoint that makes HTTP requests to the eark service
+// gen_eark_aips server.
+func (c *Client) GenEarkAips() goa.Endpoint {
 	var (
-		decodeResponse = DecodeSubmitResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeGenEarkAipsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildSubmitRequest(ctx, v)
+		req, err := c.BuildGenEarkAipsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.SubmitDoer.Do(req)
+		resp, err := c.GenEarkAipsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("eark", "submit", err)
+			return nil, goahttp.ErrRequestError("eark", "gen_eark_aips", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Status returns an endpoint that makes HTTP requests to the eark service
-// status server.
-func (c *Client) Status() goa.Endpoint {
+// AipGenStatus returns an endpoint that makes HTTP requests to the eark
+// service aip_gen_status server.
+func (c *Client) AipGenStatus() goa.Endpoint {
 	var (
-		decodeResponse = DecodeStatusResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeAipGenStatusResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildStatusRequest(ctx, v)
+		req, err := c.BuildAipGenStatusRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.StatusDoer.Do(req)
+		resp, err := c.AipGenStatusDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("eark", "status", err)
+			return nil, goahttp.ErrRequestError("eark", "aip_gen_status", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// CreateDips returns an endpoint that makes HTTP requests to the eark service
+// create_dips server.
+func (c *Client) CreateDips() goa.Endpoint {
+	var (
+		decodeResponse = DecodeCreateDipsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildCreateDipsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CreateDipsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("eark", "create_dips", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// DipGenStatus returns an endpoint that makes HTTP requests to the eark
+// service dip_gen_status server.
+func (c *Client) DipGenStatus() goa.Endpoint {
+	var (
+		decodeResponse = DecodeDipGenStatusResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildDipGenStatusRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DipGenStatusDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("eark", "dip_gen_status", err)
 		}
 		return decodeResponse(resp)
 	}
