@@ -31,9 +31,8 @@ type AipGenStatusResponseBody struct {
 // GenEarkDipsResponseBody is the type of the "eark" service "gen_eark_dips"
 // endpoint HTTP response body.
 type GenEarkDipsResponseBody struct {
-	Success bool    `form:"success" json:"success" xml:"success"`
-	AipName *string `form:"aip_name,omitempty" json:"aip_name,omitempty" xml:"aip_name,omitempty"`
-	DipName *string `form:"dip_name,omitempty" json:"dip_name,omitempty" xml:"dip_name,omitempty"`
+	WorkflowID string `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	RunID      string `form:"run_id" json:"run_id" xml:"run_id"`
 }
 
 // DipGenStatusResponseBody is the type of the "eark" service "dip_gen_status"
@@ -119,7 +118,7 @@ type GenEarkDipsNotValidResponseBody struct {
 
 // NewGenEarkAipsResponseBody builds the HTTP response body from the result of
 // the "gen_eark_aips" endpoint of the "eark" service.
-func NewGenEarkAipsResponseBody(res *eark.EarkResult) *GenEarkAipsResponseBody {
+func NewGenEarkAipsResponseBody(res *eark.EarkAIPResult) *GenEarkAipsResponseBody {
 	body := &GenEarkAipsResponseBody{
 		WorkflowID: res.WorkflowID,
 		RunID:      res.RunID,
@@ -129,7 +128,7 @@ func NewGenEarkAipsResponseBody(res *eark.EarkResult) *GenEarkAipsResponseBody {
 
 // NewAipGenStatusResponseBody builds the HTTP response body from the result of
 // the "aip_gen_status" endpoint of the "eark" service.
-func NewAipGenStatusResponseBody(res *eark.EarkStatusResult) *AipGenStatusResponseBody {
+func NewAipGenStatusResponseBody(res *eark.EarkAIPStatusResult) *AipGenStatusResponseBody {
 	body := &AipGenStatusResponseBody{
 		Running:    res.Running,
 		Status:     res.Status,
@@ -143,16 +142,15 @@ func NewAipGenStatusResponseBody(res *eark.EarkStatusResult) *AipGenStatusRespon
 // the "gen_eark_dips" endpoint of the "eark" service.
 func NewGenEarkDipsResponseBody(res *eark.EarkDIPResult) *GenEarkDipsResponseBody {
 	body := &GenEarkDipsResponseBody{
-		Success: res.Success,
-		AipName: res.AipName,
-		DipName: res.DipName,
+		WorkflowID: res.WorkflowID,
+		RunID:      res.RunID,
 	}
 	return body
 }
 
 // NewDipGenStatusResponseBody builds the HTTP response body from the result of
 // the "dip_gen_status" endpoint of the "eark" service.
-func NewDipGenStatusResponseBody(res *eark.EarkStatusResult) *DipGenStatusResponseBody {
+func NewDipGenStatusResponseBody(res *eark.EarkDIPStatusResult) *DipGenStatusResponseBody {
 	body := &DipGenStatusResponseBody{
 		Running:    res.Running,
 		Status:     res.Status,

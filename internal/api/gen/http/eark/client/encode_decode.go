@@ -67,7 +67,7 @@ func DecodeGenEarkAipsResponse(decoder func(*http.Response) goahttp.Decoder, res
 			if err != nil {
 				return nil, goahttp.ErrValidationError("eark", "gen_eark_aips", err)
 			}
-			res := NewGenEarkAipsEarkResultAccepted(&body)
+			res := NewGenEarkAipsEarkAIPResultAccepted(&body)
 			return res, nil
 		case http.StatusConflict:
 			var (
@@ -150,7 +150,7 @@ func DecodeAipGenStatusResponse(decoder func(*http.Response) goahttp.Decoder, re
 			if err != nil {
 				return nil, goahttp.ErrValidationError("eark", "aip_gen_status", err)
 			}
-			res := NewAipGenStatusEarkStatusResultOK(&body)
+			res := NewAipGenStatusEarkAIPStatusResultOK(&body)
 			return res, nil
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
@@ -292,7 +292,7 @@ func DecodeDipGenStatusResponse(decoder func(*http.Response) goahttp.Decoder, re
 			if err != nil {
 				return nil, goahttp.ErrValidationError("eark", "dip_gen_status", err)
 			}
-			res := NewDipGenStatusEarkStatusResultOK(&body)
+			res := NewDipGenStatusEarkDIPStatusResultOK(&body)
 			return res, nil
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)

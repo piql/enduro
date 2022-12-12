@@ -31,9 +31,8 @@ type AipGenStatusResponseBody struct {
 // GenEarkDipsResponseBody is the type of the "eark" service "gen_eark_dips"
 // endpoint HTTP response body.
 type GenEarkDipsResponseBody struct {
-	Success *bool   `form:"success,omitempty" json:"success,omitempty" xml:"success,omitempty"`
-	AipName *string `form:"aip_name,omitempty" json:"aip_name,omitempty" xml:"aip_name,omitempty"`
-	DipName *string `form:"dip_name,omitempty" json:"dip_name,omitempty" xml:"dip_name,omitempty"`
+	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
 // DipGenStatusResponseBody is the type of the "eark" service "dip_gen_status"
@@ -117,10 +116,10 @@ type GenEarkDipsNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// NewGenEarkAipsEarkResultAccepted builds a "eark" service "gen_eark_aips"
+// NewGenEarkAipsEarkAIPResultAccepted builds a "eark" service "gen_eark_aips"
 // endpoint result from a HTTP "Accepted" response.
-func NewGenEarkAipsEarkResultAccepted(body *GenEarkAipsResponseBody) *eark.EarkResult {
-	v := &eark.EarkResult{
+func NewGenEarkAipsEarkAIPResultAccepted(body *GenEarkAipsResponseBody) *eark.EarkAIPResult {
+	v := &eark.EarkAIPResult{
 		WorkflowID: *body.WorkflowID,
 		RunID:      *body.RunID,
 	}
@@ -158,10 +157,10 @@ func NewGenEarkAipsNotValid(body *GenEarkAipsNotValidResponseBody) *goa.ServiceE
 	return v
 }
 
-// NewAipGenStatusEarkStatusResultOK builds a "eark" service "aip_gen_status"
-// endpoint result from a HTTP "OK" response.
-func NewAipGenStatusEarkStatusResultOK(body *AipGenStatusResponseBody) *eark.EarkStatusResult {
-	v := &eark.EarkStatusResult{
+// NewAipGenStatusEarkAIPStatusResultOK builds a "eark" service
+// "aip_gen_status" endpoint result from a HTTP "OK" response.
+func NewAipGenStatusEarkAIPStatusResultOK(body *AipGenStatusResponseBody) *eark.EarkAIPStatusResult {
+	v := &eark.EarkAIPStatusResult{
 		Running:    *body.Running,
 		Status:     body.Status,
 		WorkflowID: body.WorkflowID,
@@ -175,9 +174,8 @@ func NewAipGenStatusEarkStatusResultOK(body *AipGenStatusResponseBody) *eark.Ear
 // endpoint result from a HTTP "Accepted" response.
 func NewGenEarkDipsEarkDIPResultAccepted(body *GenEarkDipsResponseBody) *eark.EarkDIPResult {
 	v := &eark.EarkDIPResult{
-		Success: *body.Success,
-		AipName: body.AipName,
-		DipName: body.DipName,
+		WorkflowID: *body.WorkflowID,
+		RunID:      *body.RunID,
 	}
 
 	return v
@@ -213,10 +211,10 @@ func NewGenEarkDipsNotValid(body *GenEarkDipsNotValidResponseBody) *goa.ServiceE
 	return v
 }
 
-// NewDipGenStatusEarkStatusResultOK builds a "eark" service "dip_gen_status"
-// endpoint result from a HTTP "OK" response.
-func NewDipGenStatusEarkStatusResultOK(body *DipGenStatusResponseBody) *eark.EarkStatusResult {
-	v := &eark.EarkStatusResult{
+// NewDipGenStatusEarkDIPStatusResultOK builds a "eark" service
+// "dip_gen_status" endpoint result from a HTTP "OK" response.
+func NewDipGenStatusEarkDIPStatusResultOK(body *DipGenStatusResponseBody) *eark.EarkDIPStatusResult {
+	v := &eark.EarkDIPStatusResult{
 		Running:    *body.Running,
 		Status:     body.Status,
 		WorkflowID: body.WorkflowID,
@@ -250,8 +248,11 @@ func ValidateAipGenStatusResponseBody(body *AipGenStatusResponseBody) (err error
 // ValidateGenEarkDipsResponseBody runs the validations defined on
 // gen_eark_dips_response_body
 func ValidateGenEarkDipsResponseBody(body *GenEarkDipsResponseBody) (err error) {
-	if body.Success == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("success", "body"))
+	if body.WorkflowID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	}
+	if body.RunID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("run_id", "body"))
 	}
 	return
 }

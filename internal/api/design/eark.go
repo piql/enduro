@@ -11,7 +11,7 @@ var _ = Service("eark", func() {
 	})
 	Method("gen_eark_aips", func() {
 		Description("Submit a new E-Ark AIP Workflow")
-		Result(EarkResult)
+		Result(EarkAIPResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
@@ -23,7 +23,7 @@ var _ = Service("eark", func() {
 	})
 	Method("aip_gen_status", func() {
 		Description("Retrieve status of current E-Ark AIP Workflow operation.")
-		Result(EarkStatusResult)
+		Result(EarkAIPStatusResult)
 		HTTP(func() {
 			GET("/aip-gen-status")
 			Response(StatusOK)
@@ -43,7 +43,7 @@ var _ = Service("eark", func() {
 	})
 	Method("dip_gen_status", func() {
 		Description("Retrieve status of current E-Ark DIP Workflow operation.")
-		Result(EarkStatusResult)
+		Result(EarkDIPStatusResult)
 		HTTP(func() {
 			GET("/dip-gen-status")
 			Response(StatusOK)
@@ -51,13 +51,13 @@ var _ = Service("eark", func() {
 	})
 })
 
-var EarkResult = Type("EarkResult", func() {
+var EarkAIPResult = Type("EarkAIPResult", func() {
 	Attribute("workflow_id", String)
 	Attribute("run_id", String)
 	Required("workflow_id", "run_id")
 })
 
-var EarkStatusResult = Type("EarkStatusResult", func() {
+var EarkAIPStatusResult = Type("EarkAIPStatusResult", func() {
 	Attribute("running", Boolean)
 	Attribute("status", String)
 	Attribute("workflow_id", String)
@@ -66,8 +66,15 @@ var EarkStatusResult = Type("EarkStatusResult", func() {
 })
 
 var EarkDIPResult = Type("EarkDIPResult", func() {
-	Attribute("success", Boolean)
-	Attribute("aip_name", String)
-	Attribute("dip_name", String)
-	Required("success")
+	Attribute("workflow_id", String)
+	Attribute("run_id", String)
+	Required("workflow_id", "run_id")
+})
+
+var EarkDIPStatusResult = Type("EarkDIPStatusResult", func() {
+	Attribute("running", Boolean)
+	Attribute("status", String)
+	Attribute("workflow_id", String)
+	Attribute("run_id", String)
+	Required("running")
 })

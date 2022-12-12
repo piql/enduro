@@ -32,13 +32,13 @@ collection (monitor|list|show|delete|cancel|retry|workflow|download|decide|bulk|
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` pipeline list --name "Beatae amet unde consequatur."` + "\n" +
+	return os.Args[0] + ` pipeline list --name "Voluptas et provident molestiae sint et."` + "\n" +
 		os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Nam sed nostrum enim laborum ea facilis.",
-      "path": "Perferendis illum illum omnis.",
-      "pipeline": "Officiis illo velit possimus et ea.",
-      "processing_config": "Harum eaque debitis rerum et.",
-      "retention_period": "Dolor illum excepturi magni quidem."
+      "completed_dir": "Quo illo natus et.",
+      "path": "Excepturi magni quidem maxime vel sint ducimus.",
+      "pipeline": "Labore eius qui reprehenderit.",
+      "processing_config": "Impedit vero ducimus.",
+      "retention_period": "Eaque suscipit in cum et quia facere."
    }'` + "\n" +
 		os.Args[0] + ` collection monitor` + "\n" +
 		""
@@ -354,7 +354,7 @@ List all known pipelines
     -name STRING: 
 
 Example:
-    %[1]s pipeline list --name "Beatae amet unde consequatur."
+    %[1]s pipeline list --name "Voluptas et provident molestiae sint et."
 `, os.Args[0])
 }
 
@@ -403,11 +403,11 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Nam sed nostrum enim laborum ea facilis.",
-      "path": "Perferendis illum illum omnis.",
-      "pipeline": "Officiis illo velit possimus et ea.",
-      "processing_config": "Harum eaque debitis rerum et.",
-      "retention_period": "Dolor illum excepturi magni quidem."
+      "completed_dir": "Quo illo natus et.",
+      "path": "Excepturi magni quidem maxime vel sint ducimus.",
+      "pipeline": "Labore eius qui reprehenderit.",
+      "processing_config": "Impedit vero ducimus.",
+      "retention_period": "Eaque suscipit in cum et quia facere."
    }'
 `, os.Args[0])
 }
@@ -481,7 +481,7 @@ List all stored collections
     -cursor STRING: 
 
 Example:
-    %[1]s collection list --name "Praesentium iste." --original-id "Aliquid velit sequi et enim quae." --transfer-id "1576BB1F-D21C-05AD-6677-73725A387FA6" --aip-id "7F641448-35F7-7B05-AFB4-8DFCC48CED66" --pipeline-id "D358BA94-28F1-C0F1-EA4E-E3BFBD8A6AE2" --earliest-created-time "2009-03-02T04:24:39Z" --latest-created-time "1977-11-19T10:09:18Z" --status "abandoned" --cursor "Soluta nihil enim omnis optio voluptatem omnis."
+    %[1]s collection list --name "Velit sint aut veritatis ut quo rerum." --original-id "Repellat sed exercitationem omnis ad." --transfer-id "1576BB1F-D21C-05AD-6677-73725A387FA6" --aip-id "7F641448-35F7-7B05-AFB4-8DFCC48CED66" --pipeline-id "D358BA94-28F1-C0F1-EA4E-E3BFBD8A6AE2" --earliest-created-time "2005-04-03T15:55:00Z" --latest-created-time "2014-05-05T19:00:01Z" --status "unknown" --cursor "Et impedit et dignissimos explicabo soluta et."
 `, os.Args[0])
 }
 
@@ -492,7 +492,7 @@ Show collection by ID
     -id UINT: Identifier of collection to show
 
 Example:
-    %[1]s collection show --id 8483566378724288020
+    %[1]s collection show --id 15997902451745212908
 `, os.Args[0])
 }
 
@@ -503,7 +503,7 @@ Delete collection by ID
     -id UINT: Identifier of collection to delete
 
 Example:
-    %[1]s collection delete --id 7348427114565682891
+    %[1]s collection delete --id 12811476318356899615
 `, os.Args[0])
 }
 
@@ -514,7 +514,7 @@ Cancel collection processing by ID
     -id UINT: Identifier of collection to remove
 
 Example:
-    %[1]s collection cancel --id 9615941239644811233
+    %[1]s collection cancel --id 11998998615337084245
 `, os.Args[0])
 }
 
@@ -525,7 +525,7 @@ Retry collection processing by ID
     -id UINT: Identifier of collection to retry
 
 Example:
-    %[1]s collection retry --id 15010771654185424452
+    %[1]s collection retry --id 15824979999272606866
 `, os.Args[0])
 }
 
@@ -536,7 +536,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of collection to look up
 
 Example:
-    %[1]s collection workflow --id 6088593296130016699
+    %[1]s collection workflow --id 3345747896208607207
 `, os.Args[0])
 }
 
@@ -547,7 +547,7 @@ Download collection by ID
     -id UINT: Identifier of collection to look up
 
 Example:
-    %[1]s collection download --id 15824979999272606866
+    %[1]s collection download --id 6758623569740053693
 `, os.Args[0])
 }
 
@@ -560,8 +560,8 @@ Make decision for a pending collection by ID
 
 Example:
     %[1]s collection decide --body '{
-      "option": "Deserunt illum et tempora."
-   }' --id 15492129042979125718
+      "option": "Omnis quod officiis rem voluptas."
+   }' --id 8438958469239148573
 `, os.Args[0])
 }
 
@@ -574,8 +574,8 @@ Bulk operations (retry, cancel...).
 Example:
     %[1]s collection bulk --body '{
       "operation": "abandon",
-      "size": 13308982753337124311,
-      "status": "done"
+      "size": 3100941166461417281,
+      "status": "unknown"
    }'
 `, os.Args[0])
 }

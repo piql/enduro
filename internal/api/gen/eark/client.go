@@ -36,23 +36,23 @@ func NewClient(genEarkAips, aipGenStatus, genEarkDips, dipGenStatus goa.Endpoint
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) GenEarkAips(ctx context.Context) (res *EarkResult, err error) {
+func (c *Client) GenEarkAips(ctx context.Context) (res *EarkAIPResult, err error) {
 	var ires interface{}
 	ires, err = c.GenEarkAipsEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
-	return ires.(*EarkResult), nil
+	return ires.(*EarkAIPResult), nil
 }
 
 // AipGenStatus calls the "aip_gen_status" endpoint of the "eark" service.
-func (c *Client) AipGenStatus(ctx context.Context) (res *EarkStatusResult, err error) {
+func (c *Client) AipGenStatus(ctx context.Context) (res *EarkAIPStatusResult, err error) {
 	var ires interface{}
 	ires, err = c.AipGenStatusEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
-	return ires.(*EarkStatusResult), nil
+	return ires.(*EarkAIPStatusResult), nil
 }
 
 // GenEarkDips calls the "gen_eark_dips" endpoint of the "eark" service.
@@ -70,11 +70,11 @@ func (c *Client) GenEarkDips(ctx context.Context) (res *EarkDIPResult, err error
 }
 
 // DipGenStatus calls the "dip_gen_status" endpoint of the "eark" service.
-func (c *Client) DipGenStatus(ctx context.Context) (res *EarkStatusResult, err error) {
+func (c *Client) DipGenStatus(ctx context.Context) (res *EarkDIPStatusResult, err error) {
 	var ires interface{}
 	ires, err = c.DipGenStatusEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
-	return ires.(*EarkStatusResult), nil
+	return ires.(*EarkDIPStatusResult), nil
 }

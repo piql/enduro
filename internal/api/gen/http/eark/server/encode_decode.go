@@ -20,7 +20,7 @@ import (
 // eark gen_eark_aips endpoint.
 func EncodeGenEarkAipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*eark.EarkResult)
+		res, _ := v.(*eark.EarkAIPResult)
 		enc := encoder(ctx, w)
 		body := NewGenEarkAipsResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
@@ -72,7 +72,7 @@ func EncodeGenEarkAipsError(encoder func(context.Context, http.ResponseWriter) g
 // eark aip_gen_status endpoint.
 func EncodeAipGenStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*eark.EarkStatusResult)
+		res, _ := v.(*eark.EarkAIPStatusResult)
 		enc := encoder(ctx, w)
 		body := NewAipGenStatusResponseBody(res)
 		w.WriteHeader(http.StatusOK)
@@ -136,7 +136,7 @@ func EncodeGenEarkDipsError(encoder func(context.Context, http.ResponseWriter) g
 // eark dip_gen_status endpoint.
 func EncodeDipGenStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*eark.EarkStatusResult)
+		res, _ := v.(*eark.EarkDIPStatusResult)
 		enc := encoder(ctx, w)
 		body := NewDipGenStatusResponseBody(res)
 		w.WriteHeader(http.StatusOK)

@@ -16,13 +16,13 @@ import (
 // The eark service manages eark workflows.
 type Service interface {
 	// Submit a new E-Ark AIP Workflow
-	GenEarkAips(context.Context) (res *EarkResult, err error)
+	GenEarkAips(context.Context) (res *EarkAIPResult, err error)
 	// Retrieve status of current E-Ark AIP Workflow operation.
-	AipGenStatus(context.Context) (res *EarkStatusResult, err error)
+	AipGenStatus(context.Context) (res *EarkAIPStatusResult, err error)
 	// Submit a new E-Ark DIP Workflow
 	GenEarkDips(context.Context) (res *EarkDIPResult, err error)
 	// Retrieve status of current E-Ark DIP Workflow operation.
-	DipGenStatus(context.Context) (res *EarkStatusResult, err error)
+	DipGenStatus(context.Context) (res *EarkDIPStatusResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -35,15 +35,15 @@ const ServiceName = "eark"
 // MethodKey key.
 var MethodNames = [4]string{"gen_eark_aips", "aip_gen_status", "gen_eark_dips", "dip_gen_status"}
 
-// EarkResult is the result type of the eark service gen_eark_aips method.
-type EarkResult struct {
+// EarkAIPResult is the result type of the eark service gen_eark_aips method.
+type EarkAIPResult struct {
 	WorkflowID string
 	RunID      string
 }
 
-// EarkStatusResult is the result type of the eark service aip_gen_status
+// EarkAIPStatusResult is the result type of the eark service aip_gen_status
 // method.
-type EarkStatusResult struct {
+type EarkAIPStatusResult struct {
 	Running    bool
 	Status     *string
 	WorkflowID *string
@@ -52,9 +52,17 @@ type EarkStatusResult struct {
 
 // EarkDIPResult is the result type of the eark service gen_eark_dips method.
 type EarkDIPResult struct {
-	Success bool
-	AipName *string
-	DipName *string
+	WorkflowID string
+	RunID      string
+}
+
+// EarkDIPStatusResult is the result type of the eark service dip_gen_status
+// method.
+type EarkDIPStatusResult struct {
+	Running    bool
+	Status     *string
+	WorkflowID *string
+	RunID      *string
 }
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

@@ -22,7 +22,7 @@ func BuildSubmitPayload(batchSubmitBody string) (*batch.SubmitPayload, error) {
 	{
 		err = json.Unmarshal([]byte(batchSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"completed_dir\": \"Nam sed nostrum enim laborum ea facilis.\",\n      \"path\": \"Perferendis illum illum omnis.\",\n      \"pipeline\": \"Officiis illo velit possimus et ea.\",\n      \"processing_config\": \"Harum eaque debitis rerum et.\",\n      \"retention_period\": \"Dolor illum excepturi magni quidem.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"completed_dir\": \"Quo illo natus et.\",\n      \"path\": \"Excepturi magni quidem maxime vel sint ducimus.\",\n      \"pipeline\": \"Labore eius qui reprehenderit.\",\n      \"processing_config\": \"Impedit vero ducimus.\",\n      \"retention_period\": \"Eaque suscipit in cum et quia facere.\"\n   }'")
 		}
 	}
 	v := &batch.SubmitPayload{
