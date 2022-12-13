@@ -35,7 +35,7 @@ var _ = Service("eark", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/gen_dip")
+			POST("/gen-dip")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
