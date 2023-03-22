@@ -40,7 +40,7 @@ const (
 	EarkAipValidationReportActivityName = "eark-aip:validation-report"
 	AipGeneratorTaskListName            = "global"
 
-	CommonsIPValidatorName = "commons-ip2-cli-2.2.1.jar"
+	CommonsIPValidatorName = "commons-ip2-cli-2.3.2.jar"
 )
 
 // Logger
