@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -740,18 +739,14 @@ func DownloadAndPlaceAMAIPActivity(ctx context.Context, package_details []AIPPac
 			}
 
 			var rep_num = fmt.Sprintf("%02d", j+1)
-			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation/data/" + am_trans.Name + ".zip"
+			preservation_file := "eark_aips/" + pkg.Aip_name + "/representations/rep" + rep_num + "-preservation/data/" + am_trans.Name + ".7z"
 
-			// Create the file
-			out, err := os.Create(preservation_file)
+			data, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				AIPErrorLogger.Println(err)
 				return err
 			}
-			defer out.Close()
-
-			// Write the body to file
-			_, err = io.Copy(out, resp.Body)
+			err = ioutil.WriteFile(preservation_file, data, 0644)
 			if err != nil {
 				AIPErrorLogger.Println(err)
 				return err
